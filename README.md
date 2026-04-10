@@ -90,4 +90,4 @@ We read every submission and will post a summary of independent results.
 
 We fine-tune open-source LLMs for real-world reasoning tasks.
 
-**Want this for your domain?** → [tunedai.ai](https://tunedai.ai)
+**Want this for your domain?** → [tunedailabs.com](https://tunedailabs.com)
