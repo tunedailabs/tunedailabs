@@ -2,7 +2,7 @@
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mgentry11/tunedai/blob/main/causal_reasoning_demo.ipynb)
 
-We fine-tuned Qwen 2.5-7B on causal reasoning and scored **96.96%** on the CLadder benchmark — within 1.6% of the theoretical ceiling. GPT-4o scores ~72% on the same test. Base Qwen scores ~62%.
+We fine-tuned Qwen 2.5-7B on causal reasoning and scored **96.96%** on the CLadder benchmark. GPT-4o scores ~72% on the same test. Base Qwen scores ~62%.
 
 **This repo lets you verify that claim yourself — for free, no setup required.**
 
@@ -36,8 +36,8 @@ The notebook already includes GPT-4o and Claude 3.5 Sonnet columns. To activate 
 Paste your keys into the cell near the top of the notebook that looks like this:
 
 ```
-OPENAI_API_KEY    = ""   ← paste your key between the quotes
-ANTHROPIC_API_KEY = ""   ← paste your key between the quotes
+OPENAI_API_KEY    = ""   <- paste your key between the quotes
+ANTHROPIC_API_KEY = ""   <- paste your key between the quotes
 ```
 
 If you leave them blank those columns will say "No API key provided" and the rest still runs fine.
@@ -88,6 +88,6 @@ We read every submission and will post a summary of independent results.
 
 ## About TunedAI
 
-We fine-tune open-source LLMs for real-world reasoning tasks. Causal reasoning is our flagship specialty.
+We fine-tune open-source LLMs for real-world reasoning tasks.
 
 **Want this for your domain?** → [tunedai.ai](https://tunedai.ai)
