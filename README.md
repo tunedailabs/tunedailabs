@@ -1,4 +1,4 @@
-# TunedAI — Causal Reasoning Benchmark
+# TunedAI Labs — Causal Reasoning Benchmark
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mgentry11/tunedai/blob/main/causal_reasoning_demo.ipynb)
 
@@ -65,7 +65,7 @@ There is also a cell at the bottom where you can type your own question.
 
 | Model | Score | Notes |
 |---|---|---|
-| **TunedAI Causal Model** | **96.96%** | Fine-tuned on causal reasoning |
+| **TunedAI Labs Causal Model** | **96.96%** | Fine-tuned on causal reasoning |
 | GPT-4o | ~72% | General purpose |
 | Claude 3.5 Sonnet | ~68% | General purpose |
 | Base Qwen 2.5-7B | ~62% | Same model, no fine-tuning |
@@ -78,7 +78,7 @@ The benchmark is public: [CLadder on GitHub](https://github.com/causalNLP/cladde
 
 After running the notebook, open a [GitHub Issue](https://github.com/mgentry11/tunedai/issues/new) and paste what you saw. Tell us:
 
-- Which questions the TunedAI model got right that the others got wrong
+- Which questions the TunedAI Labs model got right that the others got wrong
 - Anything surprising
 - Your own question and what happened
 
@@ -86,7 +86,7 @@ We read every submission and will post a summary of independent results.
 
 ---
 
-## About TunedAI
+## About TunedAI Labs
 
 We fine-tune open-source LLMs for real-world reasoning tasks.
 
