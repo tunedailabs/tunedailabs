@@ -18,58 +18,33 @@ You do not need to install anything. You just need a Google account.
 
 **Step 3** — Click **Runtime → Run all** (or press Ctrl+F9 on Windows / Cmd+F9 on Mac).
 
-**Step 4** — Wait about 2 minutes while the models load. You will see progress messages appear below each cell.
+**Step 4** — Wait about 3 minutes while the models load. Progress will appear below each cell.
 
-**Step 5** — Scroll down to see the results. Each test question is answered by four models side by side.
+**Step 5** — Watch the benchmark run in real time. Each question shows both models answering side by side with a running score.
 
 **That's it.** No coding required. You are running real AI models on Google's free cloud computers.
 
 ---
 
-### Want to compare against GPT-4 and Claude too?
-
-The notebook already includes GPT-4o and Claude 3.5 Sonnet columns. To activate them you need API keys:
-
-- **OpenAI key** (for GPT-4o): sign up at platform.openai.com → API keys → Create new key
-- **Anthropic key** (for Claude): sign up at console.anthropic.com → API keys → Create key
-
-Paste your keys into the cell near the top of the notebook that looks like this:
-
-```
-OPENAI_API_KEY    = ""   <- paste your key between the quotes
-ANTHROPIC_API_KEY = ""   <- paste your key between the quotes
-```
-
-If you leave them blank those columns will say "No API key provided" and the rest still runs fine.
-
----
-
 ## What You Are Testing
 
-The notebook asks ten questions drawn from classic texts — all written before AI existed. The correct answers were established by human experts decades ago. This rules out the models just pattern-matching from the internet.
+The notebook runs a stratified sample from the real **CLadder benchmark** — the same 10,112-question dataset used to establish the 96.96% score.
 
-| # | Question | Source | Year |
-|---|---|---|---|
-| 1 | Kidney stone treatment paradox (Simpson's Paradox) | E.H. Simpson | 1951 |
-| 2 | Bullet holes on returning bombers (Survivorship Bias) | Abraham Wald | 1943 |
-| 3 | Factory lighting and productivity (Hawthorne Effect) | Elton Mayo | 1924–32 |
-| 4 | Ice cream sales and drowning deaths (Common Cause) | Classic epidemiology | 1950s |
-| 5 | More nurses, more deaths? (Reverse Causation) | Classic medical confounding | — |
-| 6 | Handwashing and childbed fever | Ignaz Semmelweis | 1847 |
-| 7 | Cholera and the Broad Street water pump | John Snow | 1854 |
-| 8 | Smoking and lung cancer — no experiment was run | Bradford Hill | 1965 |
-| 9 | Two water companies, same street (Natural Experiment) | John Snow | 1855 |
-| 10 | Twelve sailors and six treatments (First Controlled Trial) | James Lind | 1747 |
+Questions use fictional variable names (yupt, jyka, kwox, glimx, etc.) — the models cannot recall answers from pretraining. Answering correctly requires actual causal reasoning across three levels of Pearl's causal hierarchy:
 
-There is also a cell at the bottom where you can enter your own question. A template is provided — the model was fine-tuned on short structured causal questions, so the template helps you write in the format where it performs best.
+| Rung | Type | Example |
+|---|---|---|
+| 1 | Association | Is X correlated with Y? |
+| 2 | Intervention | If we do X, does Y change? |
+| 3 | Counterfactual | If X had been different, would Y have changed? |
 
-These ten are a representative sample. We tested the model across a much wider range of causal reasoning problems — different domains, different structures, different difficulty levels — and saw consistent results in the same range. The full benchmark score of 96.96% across 10,112 questions reflects that broader testing.
+The default run is 20 questions (~3 minutes). Change `N_QUESTIONS = 20` to `N_QUESTIONS = 200` in the notebook for a more thorough test (~20 minutes).
 
 ---
 
 ## The Benchmark Results
 
-| Model | Score | Notes |
+| Model | CLadder Score | Notes |
 |---|---|---|
 | **TunedAI Labs Causal Model** | **96.96%** | Fine-tuned on causal reasoning |
 | GPT-4o | ~72% | General purpose |
@@ -82,13 +57,7 @@ The benchmark is public: [CLadder on GitHub](https://github.com/causalNLP/cladde
 
 ## Share Your Results
 
-After running the notebook, open a [GitHub Issue](https://github.com/tunedailabs/tunedailabs/issues/new) and paste what you saw. Tell us:
-
-- Which questions the TunedAI Labs model got right that the others got wrong
-- Anything surprising
-- Your own question and what happened
-
-We read every submission and will post a summary of independent results.
+After running the notebook, open a [GitHub Issue](https://github.com/tunedailabs/tunedailabs/issues/new) and paste what you saw.
 
 ---
 
