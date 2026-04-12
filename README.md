@@ -36,7 +36,7 @@ Questions use fictional variable names (yupt, jyka, kwox, glimx, etc.) across th
 |---|---|---|
 | 1 | Association | Is X correlated with Y? |
 | 2 | Intervention | If we do X, does Y change? |
-| 3 | Counterfactual | If X had been different, would Y have changed? |
+| 3 | Deep Causal | If X had been different, would Y have changed? |
 
 The default run is 200 questions (~20 minutes on T4).
 
@@ -52,7 +52,7 @@ These numbers were produced on questions **generated at runtime** — the model 
 | Base Qwen 2.5-7B | 64.0% | 61% | 78% | 44% |
 | **Gap** | **+29 pp** | +24 pp | +22 pp | +56 pp |
 
-Level 3 (counterfactual reasoning) is where the gap is largest: the tuned model answers every question correctly while the base model performs near chance.
+Level 3 (the hardest question class) is where the gap is largest: the tuned model answers every question correctly while the base model performs near chance.
 
 The CLadder benchmark score (96.96% on 10,112 questions) is also public: [CLadder on GitHub](https://github.com/causalNLP/cladder).
 
@@ -62,7 +62,7 @@ The CLadder benchmark score (96.96% on 10,112 questions) is also public: [CLadde
 
 **"Isn't this just overfitting to CLadder?"**
 
-The notebook generates questions at runtime using fictional variable names the model has never seen — yupt, jyka, kwox, glimx. Correct answers are computed from the probability parameters in the question, not retrieved from any corpus. The tuned model scores 93% overall and 100% on Rung 3 counterfactuals. The base model scores 64% on the same questions. You can't memorize questions that didn't exist until the moment you ran the notebook.
+The notebook generates questions at runtime using fictional variable names the model has never seen — yupt, jyka, kwox, glimx. Correct answers are computed from the probability parameters in the question, not retrieved from any corpus. The tuned model scores 93% overall and 100% on Level 3. The base model scores 64% on the same questions. You can't memorize questions that didn't exist until the moment you ran the notebook.
 
 **"Isn't this benchmaxxing?"**
 

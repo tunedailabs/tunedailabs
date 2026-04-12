@@ -493,7 +493,7 @@ footer{padding:40px 48px;border-top:1px solid var(--border);display:flex;justify
       </button>
       <div class="faq-a" role="region">
         <div class="faq-a-inner">
-          No. The live benchmark generates questions <strong>at runtime</strong> using fictional variable names — yupt, jyka, kwox, glimx — that the model has never seen. Correct answers are computed from the probability parameters given in the question, not retrieved from any corpus. The tuned model scores 93% overall and 100% on Level&nbsp;3 counterfactuals. The base model scores 64% on the same questions. You can't memorize questions that didn't exist until the moment you ran the notebook.
+          No. The live benchmark generates questions <strong>at runtime</strong> using fictional variable names — yupt, jyka, kwox, glimx — that the model has never seen. Correct answers are computed from the probability parameters given in the question, not retrieved from any corpus. The tuned model scores 93% overall and 100% on the hardest question level. The base model scores 64% on the same questions. You can't memorize questions that didn't exist until the moment you ran the notebook.
         </div>
       </div>
     </div>
@@ -529,7 +529,7 @@ footer{padding:40px 48px;border-top:1px solid var(--border);display:flex;justify
       </button>
       <div class="faq-a" role="region">
         <div class="faq-a-inner">
-          CLadder is a public 10,112-question benchmark for causal reasoning across Pearl's three rungs: association (correlation), intervention (do-calculus), and counterfactual reasoning. It was created by researchers at ETH Zürich and is <a href="https://github.com/causalNLP/cladder" target="_blank" style="color:var(--orange)">publicly available on GitHub</a>. GPT-4o scores ~72% on it. Our fine-tuned 7B model scores 96.96%.
+          CLadder is a public 10,112-question benchmark for causal reasoning across three difficulty levels — from basic correlation questions up to the hardest class of causal inference questions. It was created by researchers at ETH Zürich and is <a href="https://github.com/causalNLP/cladder" target="_blank" style="color:var(--orange)">publicly available on GitHub</a>. GPT-4o scores ~72% on it. Our fine-tuned 7B model scores 96.96%.
         </div>
       </div>
     </div>
@@ -541,7 +541,7 @@ footer{padding:40px 48px;border-top:1px solid var(--border);display:flex;justify
       </button>
       <div class="faq-a" role="region">
         <div class="faq-a-inner">
-          General-purpose models like GPT-4o are optimized for breadth. Causal reasoning requires a specific kind of structured inference — working through what changes when you intervene, or what would have been different under a counterfactual. Fine-tuning a smaller model specifically on that reasoning pattern produces a specialist that outperforms a generalist on this task, the same way a domain-trained radiologist outperforms a general practitioner on reading scans.
+          General-purpose models like GPT-4o are optimized for breadth. Causal reasoning requires a specific kind of structured inference — working through what changes when you intervene, and what the outcome would have been under different conditions. Fine-tuning a smaller model specifically on that reasoning pattern produces a specialist that outperforms a generalist on this task, the same way a domain-trained radiologist outperforms a general practitioner on reading scans.
         </div>
       </div>
     </div>
