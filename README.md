@@ -66,7 +66,7 @@ The notebook generates questions at runtime using fictional variable names the m
 
 **"Isn't this benchmaxxing?"**
 
-The model was not trained on CLadder questions. Training data came from a symbolic causal engine generating its own questions with machine-verified answers. There's also a keyword-scrubbed version of CLadder that removes the 168 questions where the answer can be guessed from phrases like "collider bias" — no causal reasoning required. The score holds on that version too.
+The model was not trained on CLadder questions. Training data was synthetically generated with machine-verified answers derived from explicit probability parameters — not sourced from CLadder or any public causal dataset. There's also a keyword-scrubbed version of CLadder that removes the 168 questions where the answer can be guessed from phrases like "collider bias" — no causal reasoning required. The score holds on that version too.
 
 **Short version:** The notebook generates fresh questions on the spot with fictional variables. Run it. Check the numbers yourself.
 
