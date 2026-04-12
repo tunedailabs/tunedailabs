@@ -58,6 +58,20 @@ The CLadder benchmark score (96.96% on 10,112 questions) is also public: [CLadde
 
 ---
 
+## Common Questions
+
+**"Isn't this just overfitting to CLadder?"**
+
+The notebook generates questions at runtime using fictional variable names the model has never seen — yupt, jyka, kwox, glimx. Correct answers are computed from the probability parameters in the question, not retrieved from any corpus. The tuned model scores 93% overall and 100% on Rung 3 counterfactuals. The base model scores 64% on the same questions. You can't memorize questions that didn't exist until the moment you ran the notebook.
+
+**"Isn't this benchmaxxing?"**
+
+The model was not trained on CLadder questions. Training data came from a symbolic causal engine generating its own questions with machine-verified answers. There's also a keyword-scrubbed version of CLadder that removes the 168 questions where the answer can be guessed from phrases like "collider bias" — no causal reasoning required. The score holds on that version too.
+
+**Short version:** The notebook generates fresh questions on the spot with fictional variables. Run it. Check the numbers yourself.
+
+---
+
 ## Share Your Results
 
 After running the notebook, open a [GitHub Issue](https://github.com/tunedailabs/tunedailabs/issues/new) and paste what you saw.
