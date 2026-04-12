@@ -122,6 +122,19 @@ h2{font-size:clamp(28px,4vw,42px);font-weight:900;letter-spacing:-.5px;margin-bo
 .svc p{font-size:13px;color:var(--soft);line-height:1.65}
 .svc-tag{display:inline-block;margin-top:14px;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--orange);text-transform:uppercase}
 
+/* FAQ */
+.faq-list{display:flex;flex-direction:column;gap:2px;margin-top:48px}
+.faq-item{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s}
+.faq-item:hover{border-color:var(--orange-border)}
+.faq-q{width:100%;background:none;border:none;color:var(--text);font-family:var(--font);font-size:15px;font-weight:700;text-align:left;padding:22px 28px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.faq-q:hover{color:var(--orange)}
+.faq-chevron{font-size:18px;color:var(--muted);transition:transform .25s;flex-shrink:0}
+.faq-item.open .faq-chevron{transform:rotate(180deg);color:var(--orange)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease}
+.faq-item.open .faq-a{max-height:400px}
+.faq-a-inner{padding:0 28px 22px;font-size:14px;color:var(--soft);line-height:1.8;border-top:1px solid var(--border)}
+.faq-a-inner{padding-top:16px}
+
 /* CTA */
 .cta-section{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:96px 48px;text-align:center}
 .cta-inner{max-width:620px;margin:0 auto}
@@ -170,6 +183,7 @@ footer{padding:40px 48px;border-top:1px solid var(--border);display:flex;justify
     <li><a href="#benchmark">Benchmark</a></li>
     <li><a href="#services">Services</a></li>
     <li><a href="https://colab.research.google.com/github/tunedailabs/tunedailabs/blob/main/causal_reasoning_demo.ipynb" target="_blank">Live Demo</a></li>
+    <li><a href="#faq">FAQ</a></li>
     <li><a href="#contact" class="nav-cta">Get Started</a></li>
   </ul>
 </nav>
@@ -464,6 +478,77 @@ footer{padding:40px 48px;border-top:1px solid var(--border);display:flex;justify
 </div>
 </div>
 
+<!-- FAQ -->
+<div class="section" id="faq" style="max-width:760px">
+  <div class="sec-tag">FAQ</div>
+  <h2>Common Questions</h2>
+  <p class="sec-sub">Straight answers on how the benchmark works and how the model was trained.</p>
+
+  <div class="faq-list">
+
+    <div class="faq-item">
+      <button class="faq-q" aria-expanded="false">
+        Isn't this just overfitting to CLadder?
+        <span class="faq-chevron">&#8964;</span>
+      </button>
+      <div class="faq-a" role="region">
+        <div class="faq-a-inner">
+          No. The live benchmark generates questions <strong>at runtime</strong> using fictional variable names — yupt, jyka, kwox, glimx — that the model has never seen. Correct answers are computed from the probability parameters given in the question, not retrieved from any corpus. The tuned model scores 93% overall and 100% on Level&nbsp;3 counterfactuals. The base model scores 64% on the same questions. You can't memorize questions that didn't exist until the moment you ran the notebook.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" aria-expanded="false">
+        Isn't this benchmaxxing — training directly on CLadder?
+        <span class="faq-chevron">&#8964;</span>
+      </button>
+      <div class="faq-a" role="region">
+        <div class="faq-a-inner">
+          No. The model was not trained on CLadder questions. Training data was synthetically generated with machine-verified answers derived from explicit probability parameters — not sourced from CLadder or any public causal dataset. There is also a keyword-scrubbed version of CLadder that removes the 168 questions where the answer can be guessed from phrases like "collider bias" with no causal reasoning required. The score holds on that version too.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" aria-expanded="false">
+        How do I verify the results myself?
+        <span class="faq-chevron">&#8964;</span>
+      </button>
+      <div class="faq-a" role="region">
+        <div class="faq-a-inner">
+          Click <strong>Live Demo</strong> in the footer. The Colab notebook runs both models against fresh questions generated in your session. No setup required — just a free Google account. Each run produces different questions with different fictional variable names. Watch the scores accumulate in real time.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" aria-expanded="false">
+        What is the CLadder benchmark?
+        <span class="faq-chevron">&#8964;</span>
+      </button>
+      <div class="faq-a" role="region">
+        <div class="faq-a-inner">
+          CLadder is a public 10,112-question benchmark for causal reasoning across Pearl's three rungs: association (correlation), intervention (do-calculus), and counterfactual reasoning. It was created by researchers at ETH Zürich and is <a href="https://github.com/causalNLP/cladder" target="_blank" style="color:var(--orange)">publicly available on GitHub</a>. GPT-4o scores ~72% on it. Our fine-tuned 7B model scores 96.96%.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" aria-expanded="false">
+        Why does a 7B model beat GPT-4o on this benchmark?
+        <span class="faq-chevron">&#8964;</span>
+      </button>
+      <div class="faq-a" role="region">
+        <div class="faq-a-inner">
+          General-purpose models like GPT-4o are optimized for breadth. Causal reasoning requires a specific kind of structured inference — working through what changes when you intervene, or what would have been different under a counterfactual. Fine-tuning a smaller model specifically on that reasoning pattern produces a specialist that outperforms a generalist on this task, the same way a domain-trained radiologist outperforms a general practitioner on reading scans.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- CTA -->
 <div class="cta-section" id="contact">
   <div class="cta-inner">
@@ -515,6 +600,17 @@ document.getElementById('contact-form').addEventListener('submit', async functio
     btn.disabled = false;
     btn.textContent = 'Get In Touch';
   }
+});
+</script>
+
+<script>
+document.querySelectorAll('.faq-q').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var item=this.closest('.faq-item');
+    var open=item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(function(el){el.classList.remove('open');el.querySelector('.faq-q').setAttribute('aria-expanded','false');});
+    if(!open){item.classList.add('open');this.setAttribute('aria-expanded','true');}
+  });
 });
 </script>
 
