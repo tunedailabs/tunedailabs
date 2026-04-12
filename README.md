@@ -30,13 +30,7 @@ You do not need to install anything. You just need a Google account.
 
 The notebook generates **fresh questions the model has never seen** — correct answers are computed from the numbers, not recalled from training. This rules out memorization entirely.
 
-Questions use fictional variable names (yupt, jyka, kwox, glimx, etc.) across three levels of difficulty:
-
-| Level | Type | Example |
-|---|---|---|
-| 1 | Association | Is X correlated with Y? |
-| 2 | Intervention | If we do X, does Y change? |
-| 3 | Deep Causal | If X had been different, would Y have changed? |
+Questions use fictional variable names (yupt, jyka, kwox, glimx, etc.) across a range of difficulty — from simple correlation questions up to the hardest class of causal inference. Correct answers are always computed from the numbers in the question, never recalled from training.
 
 The default run is 200 questions (~20 minutes on T4).
 
@@ -46,13 +40,13 @@ The default run is 200 questions (~20 minutes on T4).
 
 These numbers were produced on questions **generated at runtime** — the model was not trained on them. Correct answers are computed from the given probabilities.
 
-| Model | Overall | Level 1 | Level 2 | Level 3 |
-|---|---|---|---|---|
-| **TunedAI Labs ★** | **93.0%** | **85%** | **100%** | **100%** |
-| Base Qwen 2.5-7B | 64.0% | 61% | 78% | 44% |
-| **Gap** | **+29 pp** | +24 pp | +22 pp | +56 pp |
+| Model | Overall |
+|---|---|
+| **TunedAI Labs ★** | **93.0%** |
+| Base Qwen 2.5-7B | 64.0% |
+| **Gap** | **+29 pp** |
 
-Level 3 (the hardest question class) is where the gap is largest: the tuned model answers every question correctly while the base model performs near chance.
+The gap is largest on the hardest question class: the tuned model answers every one correctly while the base model performs near chance.
 
 The CLadder benchmark score (96.96% on 10,112 questions) is also public: [CLadder on GitHub](https://github.com/causalNLP/cladder).
 
@@ -62,7 +56,7 @@ The CLadder benchmark score (96.96% on 10,112 questions) is also public: [CLadde
 
 **"Isn't this just overfitting to CLadder?"**
 
-The notebook generates questions at runtime using fictional variable names the model has never seen — yupt, jyka, kwox, glimx. Correct answers are computed from the probability parameters in the question, not retrieved from any corpus. The tuned model scores 93% overall and 100% on Level 3. The base model scores 64% on the same questions. You can't memorize questions that didn't exist until the moment you ran the notebook.
+The notebook generates questions at runtime using fictional variable names the model has never seen — yupt, jyka, kwox, glimx. Correct answers are computed from the probability parameters in the question, not retrieved from any corpus. The tuned model scores 93% overall. The base model scores 64% on the same questions. You can't memorize questions that didn't exist until the moment you ran the notebook.
 
 **"Isn't this benchmaxxing?"**
 
