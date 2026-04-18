@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TunedAI Labs — Demos</title>
+<meta name="description" content="Live demonstrations of TunedAI Labs reasoning models.">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --card: #1a1a1a;
+    --border: #2a2a2a;
+    --text: #e5e5e5;
+    --text-dim: #888888;
+    --text-muted: #666666;
+    --orange: #f97316;
+    --orange-dim: #c2410c;
+    --green: #22c55e;
+    --white: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Nav */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--white);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+  }
+  .logo span { color: var(--orange); }
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+
+  /* Auth overlay */
+  .auth-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--bg);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .auth-overlay.hidden { display: none; }
+  .auth-box {
+    text-align: center;
+    max-width: 400px;
+    padding: 3rem;
+  }
+  .auth-logo {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+  .auth-logo span { color: var(--orange); }
+  .auth-box h2 {
+    font-size: 1.1rem;
+    color: var(--text-dim);
+    font-weight: 400;
+    margin-bottom: 2rem;
+  }
+  .auth-box input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--white);
+    font-size: 1rem;
+    outline: none;
+    margin-bottom: 1rem;
+    text-align: center;
+    letter-spacing: 0.1em;
+  }
+  .auth-box input:focus { border-color: var(--orange); }
+  .auth-box button {
+    width: 100%;
+    padding: 0.85rem;
+    border: none;
+    border-radius: 8px;
+    background: var(--orange);
+    color: var(--white);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .auth-box button:hover { background: var(--orange-dim); }
+  .auth-error {
+    color: #ef4444;
+    font-size: 0.85rem;
+    margin-top: 0.75rem;
+    min-height: 1.2em;
+  }
+
+  /* Demo hub content */
+  .hub {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+  }
+  .hub-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+  .hub-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 1rem;
+    padding: 0.35rem 0.9rem;
+    border: 1px solid var(--orange-dim);
+    border-radius: 100px;
+  }
+  .hub-header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--white);
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+  .hub-header p {
+    font-size: 1.1rem;
+    color: var(--text-dim);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* Demo cards */
+  .demo-grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .demo-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: border-color 0.2s, transform 0.2s;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .demo-card:hover {
+    border-color: var(--orange-dim);
+    transform: translateY(-2px);
+  }
+  .demo-card-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.65rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+  .tag-agent { background: rgba(249,115,22,0.15); color: var(--orange); }
+  .tag-reasoning { background: rgba(34,197,94,0.15); color: var(--green); }
+  .tag-intelligence { background: rgba(99,102,241,0.15); color: #818cf8; }
+  .demo-card h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+  .demo-card p {
+    color: var(--text-dim);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+  }
+  .demo-card .card-link {
+    color: var(--orange);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    max-width: 1200px;
+    margin: 4rem auto 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box">
+    <div class="auth-logo">Tuned<span>AI</span> Labs</div>
+    <h2>Enter access code to view demos</h2>
+    <input type="password" id="authCode" placeholder="Access code" onkeydown="if(event.key==='Enter')checkAuth()">
+    <button onclick="checkAuth()">Enter</button>
+    <div class="auth-error" id="authError"></div>
+  </div>
+</div>
+<script>
+function checkAuth(){
+  var c=document.getElementById('authCode').value.trim();
+  if(c==='tunedai'){
+    document.getElementById('authOverlay').classList.add('hidden');
+    sessionStorage.setItem('ks_auth','1');
+    sessionStorage.setItem('vantage_auth','1');
+    sessionStorage.setItem('ks_agent_auth','1');
+    sessionStorage.setItem('master_auth','1');
+  } else {
+    document.getElementById('authError').textContent='Invalid access code.';
+  }
+}
+if(sessionStorage.getItem('master_auth')==='1') document.getElementById('authOverlay').classList.add('hidden');
+</script>
+
+<nav>
+  <a href="index.html" class="logo">Tuned<span>AI</span> Labs</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="demos.html" style="color:var(--orange);">Demos</a></li>
+  </ul>
+</nav>
+
+<div class="hub">
+  <div class="hub-header">
+    <div class="hub-tag">Live Demos</div>
+    <h1>See the reasoning engine in action</h1>
+    <p>Interactive demonstrations of fine-tuned models that reason through complex, multi-constraint problems on local hardware.</p>
+  </div>
+
+  <div class="demo-grid">
+
+    <a href="knapsack_agent.html" class="demo-card">
+      <div class="demo-card-tag tag-reasoning">Reasoning Engine</div>
+      <h3>Agent Reasoning Interface</h3>
+      <p>Chat with the fine-tuned reasoning model. Ask multi-constraint optimization questions and watch structured depth reasoning in real time. Compare base model vs. fine-tuned side by side.</p>
+      <div class="card-link">Launch demo &#8594;</div>
+    </a>
+
+    <a href="knapsack_demo.html" class="demo-card">
+      <div class="demo-card-tag tag-agent">Agent Intelligence</div>
+      <h3>Executive Agent Demo</h3>
+      <p>See how structured reasoning transforms enterprise decision-making. Multi-step constraint satisfaction for scheduling, resource allocation, and strategic planning.</p>
+      <div class="card-link">Launch demo &#8594;</div>
+    </a>
+
+    <a href="causal_depth_demo.html" class="demo-card">
+      <div class="demo-card-tag tag-reasoning">Live Comparison</div>
+      <h3>Causal Depth Analyzer</h3>
+      <p>Side-by-side: prompted base model vs. fine-tuned model on a real legal case (State v. Howell). Watch the tuned model hit all four reasoning tiers without a system prompt.</p>
+      <div class="card-link">Launch demo &#8594;</div>
+    </a>
+
+    <a href="civil_rights_demo.html" class="demo-card">
+      <div class="demo-card-tag tag-intelligence">Causal Intelligence</div>
+      <h3>Civil Rights Intelligence Platform</h3>
+      <p>Causal reasoning applied to civil rights enforcement. DAG-based analysis showing how the model traces cause-and-effect chains through complex regulatory scenarios.</p>
+      <div class="card-link">Launch demo &#8594;</div>
+    </a>
+
+  </div>
+</div>
+
+<div class="footer">TunedAI Labs &mdash; 1580358 B.C. Ltd. &middot; Confidential &middot; 2026</div>
+
+</body>
+</html>

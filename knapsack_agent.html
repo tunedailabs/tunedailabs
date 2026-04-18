@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TunedAI — Reasoning Engine</title>
+<style>
+/* ── AUTH GATE ── */
+.auth-overlay{position:fixed;inset:0;background:#0f0f13;z-index:9999;display:flex;align-items:center;justify-content:center}
+.auth-overlay.hidden{display:none}
+.auth-box{background:#1a1a22;border:1px solid #2a2a38;border-radius:12px;padding:40px;max-width:400px;width:90%;text-align:center}
+.auth-box h2{font-size:18px;margin-bottom:6px;color:#f97316;font-family:inherit}
+.auth-box .auth-sub{color:#6b6b8a;font-size:12px;margin-bottom:24px}
+.auth-box input{width:100%;background:#0f0f13;border:1px solid #2a2a38;color:#e2e2ee;padding:12px 16px;border-radius:6px;font-family:inherit;font-size:14px;text-align:center;outline:none;margin-bottom:12px}
+.auth-box input:focus{border-color:#f97316}
+.auth-box button{width:100%;background:#f97316;color:#fff;border:none;padding:12px;border-radius:6px;font-family:inherit;font-size:14px;cursor:pointer;font-weight:700}
+.auth-box button:hover{opacity:0.85}
+.auth-error{color:#ef4444;font-size:12px;margin-top:8px;min-height:18px}
+.auth-logo{font-size:24px;font-weight:900;margin-bottom:16px;color:#e2e2ee;letter-spacing:-0.5px}
+.auth-logo span{color:#f97316}
+
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f0f13;--surface:#1a1a22;--surface2:#22222e;
+  --border:#2a2a38;--border-lite:#353545;
+  --orange:#f97316;--orange-bg:rgba(249,115,22,0.1);
+  --green:#22c55e;--green-bg:rgba(34,197,94,0.1);
+  --red:#ef4444;--red-bg:rgba(239,68,68,0.1);
+  --yellow:#f59e0b;--yellow-bg:rgba(245,158,11,0.1);
+  --blue:#3b82f6;--blue-bg:rgba(59,130,246,0.1);
+  --purple:#8b5cf6;--purple-bg:rgba(139,92,246,0.1);
+  --text:#e2e2ee;--text-soft:#a0a0b8;--text-muted:#6b6b8a;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.6;height:100vh;display:flex;flex-direction:column}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── LAYOUT ── */
+.top-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:0;flex-shrink:0;height:48px}
+.top-logo{font-size:14px;font-weight:800;color:var(--text);padding-right:16px;border-right:1px solid var(--border);margin-right:8px;letter-spacing:-.3px;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.top-logo span{color:var(--orange)}
+.top-badge{background:var(--orange);color:#fff;font-size:8px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.5px}
+
+.agent-tabs{display:flex;align-items:stretch;gap:0;flex:1;overflow-x:auto}
+.agent-tab{padding:0 16px;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all .15s}
+.agent-tab:hover{color:var(--text-soft);background:rgba(255,255,255,.02)}
+.agent-tab.active{color:var(--text);border-bottom-color:var(--orange)}
+.agent-tab .tab-icon{font-size:15px}
+.agent-tab .tab-role{font-size:10px;color:var(--text-muted);font-weight:400;margin-left:2px}
+
+.status-pill{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:0 12px;white-space:nowrap}
+.status-pill.online{color:var(--green)}
+.status-pill.offline{color:var(--red)}
+.status-dot{width:6px;height:6px;border-radius:50%}
+.status-pill.online .status-dot{background:var(--green)}
+.status-pill.offline .status-dot{background:var(--red)}
+
+/* ── MAIN AREA ── */
+.main{flex:1;display:flex;flex-direction:column;max-width:900px;width:100%;margin:0 auto;padding:0;overflow:hidden}
+
+/* ── CHAT ── */
+.chat-area{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px}
+
+.msg{display:flex;gap:10px;align-items:flex-start;animation:fadeUp .25s ease}
+.msg-user{flex-direction:row-reverse}
+.msg .avatar{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;font-weight:700}
+.msg-user .avatar{background:var(--orange-bg);color:var(--orange)}
+.msg-agent .avatar{background:var(--blue-bg);color:var(--blue)}
+.msg-system .avatar{background:var(--green-bg);color:var(--green);font-size:11px}
+
+.bubble{padding:12px 16px;border-radius:12px;max-width:85%;font-size:14px;line-height:1.7}
+.msg-user .bubble{background:var(--orange);color:#fff;border-radius:12px 2px 12px 12px}
+.msg-agent .bubble{background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:2px 12px 12px 12px}
+.msg-system .bubble{background:var(--green-bg);border:1px solid rgba(34,197,94,.15);color:var(--green);font-size:12px;font-weight:600;border-radius:20px;padding:6px 14px}
+
+/* Tier blocks */
+.tier-block{margin:10px 0 6px;padding:10px 12px;border-radius:6px;border-left:3px solid;font-size:13px;line-height:1.65}
+.tier-block.t1{background:var(--blue-bg);border-color:var(--blue)}
+.tier-block.t2{background:var(--orange-bg);border-color:var(--orange)}
+.tier-block.t3{background:var(--purple-bg);border-color:var(--purple)}
+.tier-block.t4{background:var(--green-bg);border-color:var(--green)}
+.tier-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.tier-block.t1 .tier-label{color:var(--blue)}
+.tier-block.t2 .tier-label{color:var(--orange)}
+.tier-block.t3 .tier-label{color:var(--purple)}
+.tier-block.t4 .tier-label{color:var(--green)}
+.tier-block b,.tier-block strong{color:var(--text)}
+.tier-body{color:var(--text-soft)}
+
+/* Calibration */
+.cal-block{margin:10px 0 6px;padding:10px 12px;border-radius:6px;background:var(--yellow-bg);border-left:3px solid var(--yellow);font-size:13px;line-height:1.65}
+.cal-block .tier-label{color:var(--yellow)}
+.cal-block .tier-body{color:var(--text-soft)}
+
+/* Typing indicator */
+.typing-indicator{display:flex;gap:4px;padding:6px 10px}
+.typing-dot{width:5px;height:5px;border-radius:50%;background:var(--text-muted);animation:pulse 1.2s infinite}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+
+/* Time badge */
+.time-badge{font-size:10px;color:var(--text-muted);margin-top:4px;display:flex;align-items:center;gap:4px}
+.time-badge .backend-tag{background:var(--surface2);border:1px solid var(--border);padding:1px 5px;border-radius:3px;font-size:9px}
+
+/* ── INPUT BAR ── */
+.input-bar{border-top:1px solid var(--border);padding:12px 24px;background:var(--surface);display:flex;gap:10px;align-items:flex-end;flex-shrink:0}
+.input-wrap{flex:1;position:relative}
+.input-wrap textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:8px;font-family:inherit;font-size:14px;line-height:1.5;resize:none;outline:none;min-height:42px;max-height:140px}
+.input-wrap textarea:focus{border-color:var(--orange)}
+.input-wrap textarea::placeholder{color:var(--text-muted)}
+.send-btn{background:var(--orange);color:#fff;border:none;width:42px;height:42px;border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .15s}
+.send-btn:hover{opacity:.85}
+.send-btn:disabled{opacity:.3;cursor:default}
+.send-btn .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+
+/* ── EXAMPLE PROMPTS ── */
+.examples{padding:8px 24px 12px;border-top:1px solid var(--border);background:var(--surface);flex-shrink:0;display:flex;gap:6px;flex-wrap:wrap}
+.examples-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;width:100%;margin-bottom:2px}
+.example-chip{background:var(--surface2);border:1px solid var(--border);color:var(--text-soft);padding:5px 10px;border-radius:6px;font-size:12px;cursor:pointer;transition:all .15s;line-height:1.4}
+.example-chip:hover{border-color:var(--orange);color:var(--text)}
+
+/* ── COMPARE TOGGLE ── */
+.compare-bar{padding:6px 24px;border-top:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-muted);flex-shrink:0}
+.compare-toggle{position:relative;width:36px;height:20px;background:var(--border);border-radius:10px;cursor:pointer;transition:background .2s}
+.compare-toggle.on{background:var(--orange)}
+.compare-toggle .knob{position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:left .2s}
+.compare-toggle.on .knob{left:18px}
+
+/* ── FOOTER ── */
+.footer{text-align:center;padding:8px;font-size:10px;color:var(--text-muted);flex-shrink:0;border-top:1px solid var(--border)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:700px){
+  .agent-tab .tab-role{display:none}
+  .top-logo{font-size:12px;padding-right:10px;margin-right:4px}
+  .agent-tab{padding:0 10px;font-size:12px}
+  .chat-area{padding:12px 14px}
+  .input-bar{padding:10px 14px}
+  .examples{padding:6px 14px 10px}
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box">
+    <div class="auth-logo">Tuned<span>AI</span> Labs</div>
+    <h2>Reasoning Engine</h2>
+    <div class="auth-sub">Interactive agent demo &middot; Confidential</div>
+    <input type="password" id="authCode" placeholder="Access code" onkeydown="if(event.key==='Enter')checkAuth()">
+    <button onclick="checkAuth()">Enter</button>
+    <div class="auth-error" id="authError"></div>
+  </div>
+</div>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="top-logo">Tuned<span>AI</span> <span class="top-badge">ENGINE</span></div>
+  <div class="agent-tabs" id="agentTabs">
+    <div class="agent-tab active" data-agent="polly" onclick="switchAgent('polly')">
+      <span class="tab-icon">&#x1f4ec;</span> Polly <span class="tab-role">Inbox</span>
+    </div>
+    <div class="agent-tab" data-agent="scout" onclick="switchAgent('scout')">
+      <span class="tab-icon">&#x1f4cb;</span> Scout <span class="tab-role">Calendar</span>
+    </div>
+    <div class="agent-tab" data-agent="atlas" onclick="switchAgent('atlas')">
+      <span class="tab-icon">&#x1f91d;</span> Atlas <span class="tab-role">Relationships</span>
+    </div>
+    <div class="agent-tab" data-agent="coach" onclick="switchAgent('coach')">
+      <span class="tab-icon">&#x1f3af;</span> Coach <span class="tab-role">Productivity</span>
+    </div>
+  </div>
+  <div class="status-pill" id="statusPill">
+    <div class="status-dot"></div>
+    <span id="statusText">Checking...</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="chat-area" id="chatArea"></div>
+</div>
+
+<!-- COMPARE TOGGLE -->
+<div class="compare-bar">
+  <div class="compare-toggle" id="compareToggle" onclick="toggleCompare()"><div class="knob"></div></div>
+  <span>Show side-by-side comparison with generic agent</span>
+</div>
+
+<!-- EXAMPLES -->
+<div class="examples" id="examplesBar">
+  <div class="examples-label">Try a prompt</div>
+</div>
+
+<!-- INPUT -->
+<div class="input-bar">
+  <div class="input-wrap">
+    <textarea id="userInput" rows="1" placeholder="Ask the agent anything..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+  </div>
+  <button class="send-btn" id="sendBtn" onclick="sendMessage()">&#x27A4;</button>
+</div>
+
+<div class="footer">TunedAI Labs &mdash; 1580358 B.C. Ltd. &middot; Confidential Demo &middot; April 2026</div>
+
+<script>
+// ── AUTH ──
+function checkAuth(){
+  var c=document.getElementById('authCode').value.trim();
+  if(c==='tunedai'){
+    document.getElementById('authOverlay').classList.add('hidden');
+    sessionStorage.setItem('ks_auth','1');
+    sessionStorage.setItem('vantage_auth','1');
+    sessionStorage.setItem('ks_agent_auth','1');
+    sessionStorage.setItem('master_auth','1');
+  } else if(c==='knapsack2026'||c==='jeremy2026'){
+    document.getElementById('authOverlay').classList.add('hidden');
+    sessionStorage.setItem('ks_agent_auth','1');
+  } else {
+    document.getElementById('authError').textContent='Invalid access code.';
+  }
+}
+if(sessionStorage.getItem('ks_agent_auth')==='1'||sessionStorage.getItem('master_auth')==='1') document.getElementById('authOverlay').classList.add('hidden');
+
+// ── STATE ──
+var currentAgent = 'polly';
+var isLoading = false;
+var showCompare = false;
+var apiBase = window.location.port === '9001' ? '' : 'http://localhost:9001';
+var apiOnline = false;
+var conversationHistory = {};  // per-agent message history
+
+// ── AGENTS ──
+var AGENTS = {
+  polly: {
+    name: 'Polly',
+    role: 'Inbox & Social Monitor',
+    icon: '\u{1f4ec}',
+    color: 'var(--blue)',
+    examples: [
+      "I have 23 unread emails from overnight. 4 from my biggest customer who went silent for 3 days. 3 from my CTO needing a decision by Friday. Help me triage.",
+      "My LinkedIn has 12 new connection requests this week but I haven't posted in 3 weeks. What's the pattern telling me?",
+      "I keep getting CC'd on email chains where I have no action item. How do I fix this without offending anyone?"
+    ]
+  },
+  scout: {
+    name: 'Scout',
+    role: 'Executive Assistant',
+    icon: '\u{1f4cb}',
+    color: 'var(--green)',
+    examples: [
+      "14 meetings next week. 6 have no agendas. Tuesday is back-to-back 9 AM to 2 PM. I have a strategic plan due Friday that needs 6 hours of deep work. Fix my calendar.",
+      "I have a board meeting Thursday and three reports to review but I haven't read any of them. What's my prep plan?",
+      "My meetings keep running over. Every 30-minute meeting takes 45. How do I stop this?"
+    ]
+  },
+  atlas: {
+    name: 'Atlas',
+    role: 'Relationship Optimizer',
+    icon: '\u{1f91d}',
+    color: 'var(--orange)',
+    examples: [
+      "I haven't responded to my biggest customer's CEO in 6 days. I normally respond within hours. What's the relationship risk and what's the right move?",
+      "A competitor just hired my former VP of Engineering. She has relationships with three of my key customers. What should I do?",
+      "I got introduced to a potential partner but they want equity and we only want a revenue share. How do I navigate this?"
+    ]
+  },
+  coach: {
+    name: 'Coach',
+    role: 'Work Coach',
+    icon: '\u{1f3af}',
+    color: 'var(--purple)',
+    examples: [
+      "I've worked 3 hours and have nothing to show for it. I keep switching between a fundraising deck, a customer call prep, a PR review, and an interview in 30 minutes. What's happening?",
+      "I'm working until midnight every day but my team thinks I'm not doing enough. Where's the disconnect?",
+      "My energy crashes every day around 2 PM and I can't focus for the rest of the afternoon. Help."
+    ]
+  }
+};
+
+// ── INIT ──
+function init(){
+  checkApiStatus();
+  switchAgent('polly');
+  setInterval(checkApiStatus, 15000);
+}
+
+async function checkApiStatus(){
+  try {
+    var r = await fetch(apiBase + '/health', {signal: AbortSignal.timeout(3000)});
+    if(r.ok){
+      var d = await r.json();
+      apiOnline = d.status === 'ok';
+      var pill = document.getElementById('statusPill');
+      var txt = document.getElementById('statusText');
+      if(apiOnline){
+        pill.className = 'status-pill online';
+        var backend = d.backends.ollama.available ? 'Local' : 'Cloud';
+        txt.textContent = backend + ' Inference';
+      } else {
+        pill.className = 'status-pill offline';
+        txt.textContent = 'No Backend';
+      }
+    }
+  } catch(e){
+    apiOnline = false;
+    document.getElementById('statusPill').className = 'status-pill offline';
+    document.getElementById('statusText').textContent = 'API Offline';
+  }
+}
+
+// ── AGENT SWITCHING ──
+function switchAgent(name){
+  currentAgent = name;
+  document.querySelectorAll('.agent-tab').forEach(function(t){
+    t.classList.toggle('active', t.dataset.agent === name);
+  });
+
+  // Render conversation history for this agent, or show welcome
+  var chat = document.getElementById('chatArea');
+  chat.innerHTML = '';
+
+  if(conversationHistory[name] && conversationHistory[name].length > 0){
+    conversationHistory[name].forEach(function(m){ renderMsg(m); });
+  } else {
+    var ag = AGENTS[name];
+    renderMsg({type:'system', text: ag.name + ' activated. Reasoning engine loaded. All inference runs locally \u2014 no data leaves this device.'});
+  }
+
+  // Update examples
+  renderExamples(name);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function renderExamples(agentName){
+  var bar = document.getElementById('examplesBar');
+  var ag = AGENTS[agentName];
+  bar.innerHTML = '<div class="examples-label">Try a prompt for ' + ag.name + '</div>';
+  ag.examples.forEach(function(ex){
+    var chip = document.createElement('div');
+    chip.className = 'example-chip';
+    chip.textContent = ex.length > 80 ? ex.substring(0,77) + '...' : ex;
+    chip.title = ex;
+    chip.onclick = function(){
+      document.getElementById('userInput').value = ex;
+      autoResize(document.getElementById('userInput'));
+      document.getElementById('userInput').focus();
+    };
+    bar.appendChild(chip);
+  });
+}
+
+// ── MESSAGING ──
+function renderMsg(msg){
+  var chat = document.getElementById('chatArea');
+  var div = document.createElement('div');
+
+  if(msg.type === 'system'){
+    div.className = 'msg msg-system';
+    div.innerHTML = '<div class="avatar">\u26a1</div><div class="bubble">' + escHtml(msg.text) + '</div>';
+  } else if(msg.type === 'user'){
+    div.className = 'msg msg-user';
+    div.innerHTML = '<div class="avatar">You</div><div class="bubble">' + escHtml(msg.text) + '</div>';
+  } else if(msg.type === 'agent'){
+    div.className = 'msg msg-agent';
+    var ag = AGENTS[currentAgent];
+    var html = '<div class="avatar" style="color:'+ag.color+';background:'+ag.color.replace(')',',0.1)').replace('var(','rgba(')+'">' + ag.icon + '</div>';
+    html += '<div><div class="bubble">' + formatResponse(msg.text) + '</div>';
+    if(msg.time_ms){
+      html += '<div class="time-badge">' + (msg.time_ms/1000).toFixed(1) + 's';
+      if(msg.backend) html += ' <span class="backend-tag">' + msg.backend + '</span>';
+      html += '</div>';
+    }
+    html += '</div>';
+    div.innerHTML = html;
+  } else if(msg.type === 'typing'){
+    div.className = 'msg msg-agent typing-msg';
+    var ag2 = AGENTS[currentAgent];
+    div.innerHTML = '<div class="avatar" style="color:'+ag2.color+'">' + ag2.icon + '</div><div class="bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>';
+  } else if(msg.type === 'compare'){
+    div.className = 'msg msg-agent';
+    div.innerHTML = '<div class="avatar" style="color:var(--text-muted);background:var(--surface2)">vs</div><div class="bubble" style="border-color:var(--red);opacity:.7"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--red);margin-bottom:6px">Generic Agent (No Reasoning Engine)</div>' + escHtml(msg.text) + '</div>';
+  } else if(msg.type === 'error'){
+    div.className = 'msg msg-system';
+    div.innerHTML = '<div class="avatar" style="color:var(--red);background:var(--red-bg)">\u2716</div><div class="bubble" style="background:var(--red-bg);border-color:rgba(239,68,68,.2);color:var(--red)">' + escHtml(msg.text) + '</div>';
+  }
+
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function addToHistory(msg){
+  if(!conversationHistory[currentAgent]) conversationHistory[currentAgent] = [];
+  conversationHistory[currentAgent].push(msg);
+}
+
+function escHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function formatResponse(text){
+  // Parse TIER blocks
+  var html = text;
+
+  // Replace TIER headers with styled blocks
+  html = html.replace(/TIER\s+1\s*[—\-–]\s*Observation:?\s*\n?/gi, '<div class="tier-block t1"><div class="tier-label">Tier 1 \u2014 Observation</div><div class="tier-body">');
+  html = html.replace(/TIER\s+2\s*[—\-–]\s*Mechanism:?\s*\n?/gi, '</div></div><div class="tier-block t2"><div class="tier-label">Tier 2 \u2014 Mechanism</div><div class="tier-body">');
+  html = html.replace(/TIER\s+3\s*[—\-–]\s*Projection:?\s*\n?/gi, '</div></div><div class="tier-block t3"><div class="tier-label">Tier 3 \u2014 Projection</div><div class="tier-body">');
+  html = html.replace(/TIER\s+4\s*[—\-–]\s*Simulation:?\s*\n?/gi, '</div></div><div class="tier-block t4"><div class="tier-label">Tier 4 \u2014 Simulation</div><div class="tier-body">');
+
+  // Close last tier block if opened
+  if(html.match(/<div class="tier-body">[^]*$/)){
+    html += '</div></div>';
+  }
+
+  // Remove leading close tags if first tier
+  html = html.replace(/^<\/div><\/div>/, '');
+
+  // Handle calibration/knowledge boundary markers
+  html = html.replace(/(?:Knowledge Boundary|CALIBRATION|What I (?:Still )?Don't Know)[:\s]*\n?/gi, function(match){
+    return '<div class="cal-block"><div class="tier-label">' + match.trim().replace(/[:\s]+$/,'') + '</div><div class="tier-body">';
+  });
+
+  // Bold text between **
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+  // Line breaks
+  html = html.replace(/\n/g, '<br>');
+
+  return html;
+}
+
+// ── SEND ──
+async function sendMessage(){
+  if(isLoading) return;
+  var input = document.getElementById('userInput');
+  var text = input.value.trim();
+  if(!text) return;
+
+  input.value = '';
+  autoResize(input);
+
+  // Add user message
+  var userMsg = {type:'user', text:text};
+  renderMsg(userMsg);
+  addToHistory(userMsg);
+
+  if(!apiOnline){
+    renderMsg({type:'error', text:'Reasoning engine API is not running. Start it with: python knapsack_api.py'});
+    return;
+  }
+
+  // Show typing
+  isLoading = true;
+  document.getElementById('sendBtn').innerHTML = '<div class="spinner"></div>';
+  document.getElementById('sendBtn').disabled = true;
+  renderMsg({type:'typing'});
+
+  try {
+    // Send to reasoning engine
+    var r = await fetch(apiBase + '/api/agent', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({agent: currentAgent, message: text}),
+    });
+
+    // Remove typing indicator
+    var typingEl = document.querySelector('.typing-msg');
+    if(typingEl) typingEl.remove();
+
+    if(!r.ok) throw new Error('API returned ' + r.status);
+
+    var data = await r.json();
+    var agentMsg = {type:'agent', text:data.response, time_ms:data.time_ms, backend:data.backend};
+    renderMsg(agentMsg);
+    addToHistory(agentMsg);
+
+    // If compare mode is on, also fetch baseline
+    if(showCompare){
+      renderMsg({type:'typing'});
+      try {
+        var r2 = await fetch(apiBase + '/api/agent/baseline', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({message: text}),
+        });
+        var typingEl2 = document.querySelector('.typing-msg');
+        if(typingEl2) typingEl2.remove();
+
+        if(r2.ok){
+          var data2 = await r2.json();
+          var compareMsg = {type:'compare', text:data2.response};
+          renderMsg(compareMsg);
+          addToHistory(compareMsg);
+        }
+      } catch(e2){
+        var typingEl3 = document.querySelector('.typing-msg');
+        if(typingEl3) typingEl3.remove();
+      }
+    }
+
+  } catch(e){
+    var typingEl4 = document.querySelector('.typing-msg');
+    if(typingEl4) typingEl4.remove();
+    renderMsg({type:'error', text:'Failed to reach reasoning engine: ' + e.message});
+  }
+
+  isLoading = false;
+  document.getElementById('sendBtn').innerHTML = '\u27A4';
+  document.getElementById('sendBtn').disabled = false;
+  input.focus();
+}
+
+// ── COMPARE TOGGLE ──
+function toggleCompare(){
+  showCompare = !showCompare;
+  document.getElementById('compareToggle').classList.toggle('on', showCompare);
+}
+
+// ── INPUT HELPERS ──
+function handleKey(e){
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el){
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+}
+
+// ── BOOT ──
+init();
+</script>
+</body>
+</html>

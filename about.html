@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — TunedAI Labs</title>
+<meta name="description" content="TunedAI Labs builds fine-tuned AI models for regulated, high-stakes work. Founded by Mark Gentry.">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --border: #2a2a2a;
+    --text: #e5e5e5;
+    --text-dim: #888888;
+    --text-muted: #666666;
+    --orange: #f97316;
+    --orange-dim: #c2410c;
+    --white: #ffffff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--white);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+  }
+  .logo span { color: var(--orange); }
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+
+  .about-content {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 5rem 2rem 6rem;
+  }
+  .about-content h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--white);
+    margin-bottom: 2rem;
+    letter-spacing: -0.01em;
+  }
+  .about-content h2 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .about-content p {
+    color: var(--text-dim);
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
+    line-height: 1.8;
+  }
+  .about-content .intro {
+    font-size: 1.1rem;
+    color: var(--text);
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .pullquote {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--white);
+    line-height: 1.5;
+    margin: 2rem 0;
+    padding-left: 1.5rem;
+    border-left: 3px solid var(--orange);
+  }
+  .cta-line {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    font-size: 1.05rem;
+    color: var(--text-dim);
+  }
+  .cta-line a {
+    color: var(--orange);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .cta-line a:hover { text-decoration: underline; }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+  footer a { color: var(--text-dim); text-decoration: none; }
+
+  @media (max-width: 768px) {
+    .about-content { padding: 3rem 1.5rem 4rem; }
+    .about-content h1 { font-size: 1.8rem; }
+    .nav-links { gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">Tuned<span>AI</span> Labs</a>
+  <ul class="nav-links">
+    <li><a href="/#how">How It Works</a></li>
+    <li><a href="/#benchmark">Benchmark</a></li>
+    <li><a href="/about.html">About</a></li>
+    <li><a href="/demos.html">Demos</a></li>
+    <li><a href="mailto:mark@tunedailabs.com" style="display:inline-block;padding:0.5rem 1.2rem;background:var(--orange);color:var(--bg);font-weight:700;font-size:0.85rem;border-radius:6px;">Contact</a></li>
+  </ul>
+</nav>
+
+<main class="about-content">
+  <h1>About TunedAI Labs</h1>
+
+  <p class="intro">TunedAI Labs builds fine-tuned AI models for regulated, high-stakes work &mdash; healthcare, finance, legal, security &mdash; where the output needs to hold up to review, not just sound good.</p>
+
+  <p>I'm Mark Gentry, the founder. The company is the convergence point of four threads I've been pulling on for a long time.</p>
+
+  <h2>Philosophy</h2>
+  <p>Years before I went to grad school, I was sitting in on Hubert Dreyfus's AI courses at UC Berkeley &mdash; just for the fun of it. Dreyfus spent four decades making the most serious academic argument against purely computational AI: that reasoning, for minds, is not symbol manipulation. It's embedded in skillful practice, embodied context, and a background of shared meaning that can't be fully formalized. Around that time I also sat in on a Heidegger seminar &mdash; the philosophical foundation underneath everything Dreyfus was saying &mdash; and a Nietzsche seminar, because I was curious. Years later I went back for a master's in philosophy of consciousness.</p>
+
+  <h2>Industry</h2>
+  <p>I then spent twenty years recruiting in tech &mdash; YouTube, Google, BitTorrent, Tango, and others. Recruiting is a privileged seat. You see what companies actually build, not what they claim to build. You meet the people doing the work before the press releases. I had a front-row view of the systems Dreyfus had been critiquing as they grew into the dominant paradigm.</p>
+
+  <h2>Hands-on</h2>
+  <p>Among the companies I recruited for was Udacity, including their Machine Learning and Self-Driving Car Nanodegrees. I ended up taking the coursework myself, writing the projects by hand &mdash; partly out of curiosity, partly to see if I could.</p>
+
+  <h2>The Work</h2>
+
+  <div class="pullquote">Dreyfus was right about something real &mdash; fluent output is not reasoning.</div>
+
+  <p>TunedAI Labs is where those four threads meet. Modern LLMs are still mostly next-token predictors wrapped in instruction-following scaffolding. The gap shows up most painfully in regulated, high-stakes domains where the wrong answer has consequences. What I've built is an approach to engineering structure into fine-tuned LLMs so that their output is traceable, auditable, and closer to actual reasoning, not just plausibly worded.</p>
+
+  <p>A current result: a custom-tuned Qwen 2.5-7B scored 96.96% on CLadder, a public academic benchmark for causal reasoning. The base model sits in the mid-60s. An independent applied AI engineer &mdash; 25 years in security and forensics, former White House, JP Morgan, Splunk &mdash; verified the result on a held-out sample. Not benchmaxxed, not overfitted.</p>
+
+  <p>None of this claims to have solved Dreyfus's critique. Nobody has. But taking the critique seriously and engineering against it is the work worth doing &mdash; and it's what TunedAI Labs is set up to do.</p>
+
+  <h2>Inheritance</h2>
+  <p>My father spent his career as an engineer at IBM in the mainframe era. His monitor program for the 1401 &mdash; the Gentry Monitor &mdash; was picked up by IBM and distributed as the FASTER Type II Program. He was awarded IBM's Outstanding Contributor recognition; the cufflinks are still in our family. His oral history is preserved at the Computer History Museum. A historian once told our family he was the unsung hero of CICS, the transaction system the world's banks still run on. I can't prove that part.</p>
+
+  <p>But I know what he spent his career doing: making machines reason reliably enough to be trusted with work that mattered. That's the same problem I'm working on, one layer up the stack.</p>
+
+  <div class="cta-line">
+    <p>If that sounds like something your team needs, <a href="mailto:mark@tunedailabs.com">I'd love to talk</a>.</p>
+  </div>
+</main>
+
+<footer>
+  <p>&copy; 2026 TunedAI Labs &mdash; a trade name of 1580358 B.C. Ltd.</p>
+  <p style="margin-top:0.5rem;"><a href="mailto:mark@tunedailabs.com">mark@tunedailabs.com</a></p>
+</footer>
+
+</body>
+</html>
