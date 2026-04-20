@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vantage x MyGuardian -- Civil Rights Intelligence</title>
+<style>
+/* -- AUTH GATE -- */
+.auth-overlay{position:fixed;inset:0;background:var(--navy,#0a1628);z-index:9999;display:flex;align-items:center;justify-content:center}
+.auth-overlay.hidden{display:none}
+.auth-box{background:#1e3a5f;border:1px solid #2a4570;border-radius:12px;padding:40px;max-width:400px;width:90%;text-align:center}
+.auth-box h2{font-size:18px;margin-bottom:6px;color:#c9a84c;font-family:-apple-system,sans-serif}
+.auth-box .auth-sub{color:#8a9ab5;font-size:12px;margin-bottom:24px}
+.auth-box input{width:100%;background:#0a1628;border:1px solid #2a4570;color:#fff;padding:12px 16px;border-radius:6px;font-family:inherit;font-size:14px;text-align:center;outline:none;margin-bottom:12px}
+.auth-box input:focus{border-color:#c9a84c}
+.auth-box button{width:100%;background:#c9a84c;color:#0a1628;border:none;padding:12px;border-radius:6px;font-family:inherit;font-size:14px;cursor:pointer;font-weight:700}
+.auth-box button:hover{opacity:0.85}
+.auth-error{color:#e74c3c;font-size:12px;margin-top:8px;min-height:18px}
+.auth-logo{font-size:24px;font-weight:900;margin-bottom:16px;color:#fff;letter-spacing:1px}
+.auth-logo span{color:#c9a84c}
+
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#0a1628;--navy-mid:#1e3a5f;--navy-light:#2a4570;
+  --gold:#c9a84c;--gold-lite:#e8c96a;--gold-bg:#fdf8ee;
+  --green:#27ae60;--green-bg:#edfaf3;--green-dark:#1a6b3c;
+  --red:#e74c3c;--red-bg:#fff0f0;--red-dark:#c0392b;
+  --orange:#e67e22;--orange-bg:#fff8ee;
+  --blue:#2563eb;--blue-bg:#eff6ff;
+  --purple:#7b2ff7;
+  --bg:#ffffff;--surface:#f8fafc;--border:#e2e8f0;
+  --text:#1a202c;--text-soft:#4a5568;--text-muted:#718096;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:17px;line-height:1.6}
+
+/* -- NOTICE BAR -- */
+.notice-bar{background:var(--gold-bg);border-bottom:2px solid var(--gold);text-align:center;font-size:11px;font-weight:700;letter-spacing:1.5px;color:#7a5c1e;padding:8px 16px}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* -- NAV BAR -- */
+.demo-nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:stretch;gap:0}
+.demo-logo{font-size:13px;font-weight:800;color:var(--navy);display:flex;align-items:center;padding:0 18px 0 0;border-right:1px solid var(--border);margin-right:12px;gap:8px;white-space:nowrap}
+.demo-logo-badge{background:var(--navy);color:var(--gold);font-size:9px;font-weight:700;padding:3px 7px;border-radius:3px;letter-spacing:.5px}
+.nav-status{display:flex;align-items:center;gap:8px;padding:0 18px;font-size:12px;color:var(--text-muted);border-right:1px solid var(--border);margin-right:12px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0}
+.status-dot.online{background:var(--green);animation:pulse 2s infinite}
+.nav-jurisdiction{display:flex;align-items:center;gap:8px;padding:14px 18px;font-size:13px;color:var(--text-soft)}
+.jurisdiction-select{background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 8px;font-size:12px;color:var(--text);font-family:inherit;cursor:pointer;outline:none}
+.jurisdiction-select:focus{border-color:var(--gold)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:12px;padding:10px 0}
+.nav-model{font-size:11px;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);padding:4px 10px;border-radius:4px;font-weight:600}
+
+/* -- MAIN LAYOUT -- */
+.main{display:grid;grid-template-columns:1fr 420px;gap:20px;padding:22px 32px;max-width:1320px;margin:0 auto}
+@media(max-width:960px){.main{grid-template-columns:1fr}.analysis-panel{display:none}}
+
+/* -- ENCOUNTER PANEL -- */
+.encounter-panel{background:var(--bg);border:1px solid var(--border);border-radius:10px;display:flex;flex-direction:column;overflow:hidden;min-height:540px;max-height:calc(100vh - 110px)}
+.enc-header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;justify-content:space-between;align-items:center}
+.enc-title{font-size:14px;font-weight:700;color:var(--navy)}
+.enc-meta{font-size:12px;color:var(--text-muted)}
+.stage-bar{display:flex;gap:6px;padding:9px 20px;background:var(--bg);border-bottom:1px solid var(--border);align-items:center}
+.stage-dot{width:28px;height:5px;border-radius:3px;background:var(--border);transition:background .4s}
+.stage-dot.done{background:var(--green)}
+.stage-dot.active{background:var(--gold)}
+.stage-lbl{font-size:11px;color:var(--text-muted);margin-left:auto;font-weight:600}
+
+/* context box */
+.ctx-box{background:var(--blue-bg);border-left:4px solid var(--blue);padding:13px 18px;margin:14px 20px 0;border-radius:0 8px 8px 0;font-size:14px;color:var(--text);line-height:1.7}
+.ctx-box b{color:var(--navy);font-weight:700}
+
+/* transcript */
+.transcript{flex:1;overflow-y:auto;padding:14px 20px;display:flex;flex-direction:column;gap:10px}
+
+.msg{display:flex;gap:10px;align-items:flex-start;opacity:0;transform:translateY(4px);animation:msg-in .3s ease forwards}
+@keyframes msg-in{to{opacity:1;transform:none}}
+.avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:2px}
+
+/* User messages (citizen style from demo) */
+.msg-citizen{flex-direction:row-reverse}
+.msg-citizen .avatar{background:#fef9e7}
+.msg-citizen .bubble{background:var(--gold);color:var(--navy);padding:11px 15px;border-radius:10px 0 10px 10px;max-width:84%;font-size:14px;font-weight:500;line-height:1.6}
+
+/* AI analysis (rungsx style from demo) */
+.msg-rungsx .bubble{background:var(--surface);border:1.5px solid var(--border);border-left:4px solid var(--gold);color:var(--text);padding:13px 16px;border-radius:6px;font-size:14px;line-height:1.7;width:100%}
+.msg-rungsx .bubble b{color:var(--navy)}
+
+/* Legal notes (from demo) */
+.msg-legal .bubble{background:#fffbeb;border:1px solid var(--gold);color:#7a5c1e;padding:11px 16px;border-radius:6px;font-size:13px;line-height:1.7;width:100%}
+.msg-legal .bubble b{color:#5d4017}
+
+/* System messages (from demo) */
+.msg-system .bubble{background:var(--green-bg);border:1px solid #a8d5b5;color:var(--green-dark);padding:9px 15px;border-radius:20px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;flex-shrink:0}
+
+/* Tier blocks inside rungsx bubbles */
+.tier-block{margin:10px 0 6px;padding:12px 14px;border-radius:8px;border-left:4px solid;font-size:13px;line-height:1.65}
+.tier-block:first-child{margin-top:4px}
+.tier-label{font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.tier-badge{padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700;color:#fff}
+.tier-1{background:var(--blue-bg);border-color:var(--blue)}
+.tier-1 .tier-label{color:var(--blue)}
+.tier-1 .tier-badge{background:var(--blue)}
+.tier-2{background:var(--gold-bg);border-color:var(--gold)}
+.tier-2 .tier-label{color:#7a5c1e}
+.tier-2 .tier-badge{background:var(--gold);color:var(--navy)}
+.tier-3{background:var(--orange-bg);border-color:var(--orange)}
+.tier-3 .tier-label{color:#7a5c1e}
+.tier-3 .tier-badge{background:var(--orange)}
+.tier-4{background:var(--green-bg);border-color:var(--green)}
+.tier-4 .tier-label{color:var(--green-dark)}
+.tier-4 .tier-badge{background:var(--green)}
+.tier-content{color:var(--text-soft)}
+.tier-content b{color:var(--text)}
+
+/* Typing */
+.typing{display:flex;gap:4px;padding:8px 0}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--text-muted);animation:typing-bounce 1.4s infinite}
+.typing-dot:nth-child(2){animation-delay:0.2s}
+.typing-dot:nth-child(3){animation-delay:0.4s}
+@keyframes typing-bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+/* Welcome */
+.welcome{text-align:center;padding:40px 32px;color:var(--text-soft);max-width:560px;margin:auto}
+.welcome h2{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.welcome p{font-size:14px;line-height:1.7;margin-bottom:20px}
+.welcome-logo{background:var(--navy);color:var(--gold);width:64px;height:64px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;letter-spacing:1px;margin:0 auto 16px}
+.welcome-examples{display:flex;flex-direction:column;gap:7px;text-align:left}
+.example-btn{background:var(--bg);border:1.5px solid var(--border);padding:11px 14px;border-radius:8px;cursor:pointer;transition:all .2s;display:grid;grid-template-columns:26px 1fr auto;align-items:start;gap:10px;width:100%;text-align:left;font-family:inherit;font-size:13px;color:var(--text-soft);line-height:1.5}
+.example-btn:hover{border-color:var(--gold);background:var(--gold-bg);transform:translateX(2px)}
+.example-btn.recommended{border-color:var(--green);background:var(--green-bg)}
+.ekey{width:26px;height:26px;border-radius:5px;background:var(--navy);color:var(--gold);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.etxt{font-size:14px;font-weight:600;color:var(--navy);line-height:1.35}
+.esub{font-size:13px;color:var(--text-soft);line-height:1.5;margin-top:2px}
+.erec{font-size:10px;font-weight:700;color:var(--green-dark);background:var(--green-bg);padding:3px 8px;border-radius:3px;white-space:nowrap;align-self:start;margin-top:1px;border:1px solid #a8d5b5}
+
+/* Input area */
+.input-area{border-top:1px solid var(--border);padding:14px 20px;background:var(--surface)}
+.input-wrap{display:flex;gap:10px;align-items:flex-end}
+.input-wrap textarea{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:11px 14px;font-size:14px;font-family:inherit;color:var(--text);resize:none;min-height:44px;max-height:120px;line-height:1.5;outline:none;transition:border-color 0.15s}
+.input-wrap textarea:focus{border-color:var(--gold)}
+.input-wrap textarea::placeholder{color:var(--text-muted)}
+.send-btn{background:var(--navy);color:var(--gold);border:none;width:44px;height:44px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s;flex-shrink:0}
+.send-btn:hover{background:var(--navy-mid)}
+.send-btn:disabled{opacity:0.4;cursor:not-allowed}
+.send-btn svg{width:20px;height:20px}
+
+/* -- ANALYSIS PANEL -- */
+.analysis-panel{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.card-hd{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 18px;display:flex;align-items:center;justify-content:space-between}
+.card-title{color:var(--navy);font-size:13px;font-weight:700;letter-spacing:.3px}
+.rtag{font-size:10px;font-weight:700;padding:4px 9px;border-radius:3px;letter-spacing:.5px;white-space:nowrap}
+.rt1{background:var(--blue);color:#fff}
+.rt2{background:var(--gold);color:var(--navy)}
+.rt25{background:var(--purple);color:#fff}
+.rt3{background:var(--orange);color:#fff}
+.card-bd{padding:14px 18px}
+
+/* State grid */
+.state-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.sv{display:flex;flex-direction:column;gap:3px}
+.sv-name{font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted);font-weight:600}
+.sv-val{font-size:13px;font-weight:700;color:var(--text)}
+.sv-val.ok{color:var(--green)}
+.sv-val.warn{color:var(--orange)}
+.sv-val.bad{color:var(--red)}
+.ind{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px}
+.ind-g{background:var(--green)}
+.ind-o{background:var(--orange)}
+.ind-r{background:var(--red)}
+
+/* R2 risk guidance */
+.r2-waiting{color:var(--text-muted);font-size:13px;text-align:center;padding:18px 0;line-height:1.65}
+.r2-note{font-size:13px;color:var(--text-soft);background:var(--gold-bg);border-left:3px solid var(--gold);padding:10px 14px;border-radius:0 5px 5px 0;margin-bottom:12px;line-height:1.6}
+.r2-option{background:var(--surface);border-radius:8px;padding:12px 14px;margin-bottom:9px;border:1.5px solid var(--border)}
+.r2-option.best{border-color:var(--green);background:var(--green-bg)}
+.r2-option.worst{border-color:#f5c6cb;background:var(--red-bg)}
+.r2-option-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.r2-option-label{font-size:13px;font-weight:700;color:var(--text);line-height:1.3}
+.r2-option-label.best{color:var(--green-dark)}
+.r2-option-label.worst{color:var(--red-dark)}
+.r2-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:3px;white-space:nowrap}
+.badge-best{background:var(--green-bg);color:var(--green-dark);border:1px solid #a8d5b5}
+.badge-worst{background:var(--red-bg);color:var(--red-dark);border:1px solid #f5c6cb}
+.badge-mid{background:var(--orange-bg);color:#856404;border:1px solid #ffc107}
+.risk-bars{display:flex;flex-direction:column;gap:6px}
+.risk-bar-row{display:flex;align-items:center;gap:8px}
+.rb-name{font-size:11px;color:var(--text-soft);width:118px;flex-shrink:0}
+.rb-track{flex:1;height:10px;background:var(--border);border-radius:6px;overflow:hidden}
+.rb-fill{height:100%;border-radius:6px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+.rb-fill.good{background:linear-gradient(90deg,#1e8449,#27ae60)}
+.rb-fill.med{background:linear-gradient(90deg,#d4a017,#f1c40f)}
+.rb-fill.bad{background:linear-gradient(90deg,#ca6f1e,#e67e22)}
+.rb-fill.danger{background:linear-gradient(90deg,#922b21,#e74c3c)}
+.rb-label{font-size:11px;font-weight:700;width:64px;text-align:right}
+.rb-label.good{color:var(--green-dark)}
+.rb-label.med{color:#856404}
+.rb-label.bad{color:#ca6f1e}
+.rb-label.danger{color:var(--red-dark)}
+.r2-plain{font-size:13px;color:var(--text-soft);margin-top:9px;line-height:1.65;padding:9px 12px;background:var(--bg);border-radius:6px;border:1px solid var(--border)}
+
+/* Foresight engine */
+.foresight-wait{color:var(--text-muted);font-size:13px;text-align:center;padding:18px 0;line-height:1.65}
+.fa-level{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:6px;margin-bottom:10px;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+.fa-low{background:var(--green-bg);color:var(--green-dark);border:1px solid #a8d5b5}
+.fa-med{background:var(--orange-bg);color:#856404;border:1px solid #ffc107}
+.fa-high{background:var(--red-bg);color:var(--red-dark);border:1px solid #f5c6cb}
+.fa-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;animation:pulse 1.5s infinite}
+.fa-low .fa-dot{background:var(--green)}
+.fa-med .fa-dot{background:var(--orange)}
+.fa-high .fa-dot{background:var(--red)}
+.fa-body{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:10px}
+.fa-next{font-size:13px;color:var(--text);font-weight:600;background:var(--gold-bg);border-left:3px solid var(--gold);padding:9px 12px;border-radius:0 5px 5px 0}
+
+/* Powered by */
+.powered{padding:14px 18px;text-align:center;font-size:10px;color:var(--text-muted);letter-spacing:0.3px}
+.powered a{color:var(--gold);text-decoration:none;font-weight:700}
+</style>
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box">
+    <div class="auth-logo">Vantage <span>Intelligence</span></div>
+    <h2>Civil Rights Advisor</h2>
+    <div class="auth-sub">Enter access code to continue</div>
+    <input type="password" id="authCode" placeholder="Access code" onkeydown="if(event.key==='Enter')checkAuth()">
+    <button onclick="checkAuth()">Enter</button>
+    <div class="auth-error" id="authError"></div>
+  </div>
+</div>
+<script>
+function checkAuth(){
+  var code=document.getElementById('authCode').value.trim();
+  if(code==='tunedai'||code==='vantage2026'||code==='myguardian'){
+    document.getElementById('authOverlay').classList.add('hidden');
+    sessionStorage.setItem('mg_auth','1');
+  } else {
+    document.getElementById('authError').textContent='Invalid access code.';
+  }
+}
+if(sessionStorage.getItem('mg_auth')==='1'||sessionStorage.getItem('master_auth')==='1'){
+  document.getElementById('authOverlay').classList.add('hidden');
+}
+</script>
+
+<div class="notice-bar">TECHNOLOGY UNDER CONSIDERATION &middot; CONFIDENTIAL EVALUATION &middot; NOT FOR DISTRIBUTION</div>
+
+<!-- NAV -->
+<div class="demo-nav">
+  <div class="demo-logo"><span class="demo-logo-badge">VANTAGE</span> MyGuardian Live</div>
+  <div class="nav-status">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">Connecting...</span>
+  </div>
+  <div class="nav-jurisdiction">
+    <select class="jurisdiction-select" id="jurisdictionSelect">
+      <option value="">Jurisdiction (auto)</option>
+      <option value="Alabama">Alabama</option><option value="Alaska">Alaska</option>
+      <option value="Arizona">Arizona</option><option value="Arkansas">Arkansas</option>
+      <option value="California">California</option><option value="Colorado">Colorado</option>
+      <option value="Connecticut">Connecticut</option><option value="Delaware">Delaware</option>
+      <option value="Florida">Florida</option><option value="Georgia">Georgia</option>
+      <option value="Hawaii">Hawaii</option><option value="Idaho">Idaho</option>
+      <option value="Illinois">Illinois</option><option value="Indiana">Indiana</option>
+      <option value="Iowa">Iowa</option><option value="Kansas">Kansas</option>
+      <option value="Kentucky">Kentucky</option><option value="Louisiana">Louisiana</option>
+      <option value="Maine">Maine</option><option value="Maryland">Maryland</option>
+      <option value="Massachusetts">Massachusetts</option><option value="Michigan">Michigan</option>
+      <option value="Minnesota">Minnesota</option><option value="Mississippi">Mississippi</option>
+      <option value="Missouri">Missouri</option><option value="Montana">Montana</option>
+      <option value="Nebraska">Nebraska</option><option value="Nevada">Nevada</option>
+      <option value="New Hampshire">New Hampshire</option><option value="New Jersey">New Jersey</option>
+      <option value="New Mexico">New Mexico</option><option value="New York">New York</option>
+      <option value="North Carolina">North Carolina</option><option value="North Dakota">North Dakota</option>
+      <option value="Ohio">Ohio</option><option value="Oklahoma">Oklahoma</option>
+      <option value="Oregon">Oregon</option><option value="Pennsylvania">Pennsylvania</option>
+      <option value="Rhode Island">Rhode Island</option><option value="South Carolina">South Carolina</option>
+      <option value="South Dakota">South Dakota</option><option value="Tennessee">Tennessee</option>
+      <option value="Texas">Texas</option><option value="Utah">Utah</option>
+      <option value="Vermont">Vermont</option><option value="Virginia">Virginia</option>
+      <option value="Washington">Washington</option><option value="West Virginia">West Virginia</option>
+      <option value="Wisconsin">Wisconsin</option><option value="Wyoming">Wyoming</option>
+      <option value="Washington DC">Washington DC</option>
+    </select>
+  </div>
+  <div class="nav-right">
+    <div class="nav-model" id="navModel">--</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- LEFT: ENCOUNTER PANEL -->
+  <div class="encounter-panel">
+    <div class="enc-header">
+      <div class="enc-title" id="encTitle">ENCOUNTER -- LIVE ANALYSIS</div>
+      <div class="enc-meta" id="encMeta">Describe your situation to begin</div>
+    </div>
+    <div class="stage-bar" id="stageBar">
+      <div class="stage-dot" id="sd0"></div>
+      <div class="stage-dot" id="sd1"></div>
+      <div class="stage-dot" id="sd2"></div>
+      <div class="stage-dot" id="sd3"></div>
+      <div class="stage-dot" id="sd4"></div>
+      <div class="stage-dot" id="sd5"></div>
+      <div class="stage-lbl" id="stageLbl">Ready</div>
+    </div>
+
+    <div class="transcript" id="transcript">
+      <div class="welcome" id="welcome">
+        <div class="welcome-logo">V&times;</div>
+        <h2>Vantage Civil Rights Advisor</h2>
+        <p>Describe any law enforcement encounter. The intelligence engine will analyze your rights, assess risk, and recommend the safest response.</p>
+        <div class="welcome-examples" id="welcomeExamples">
+          <button class="example-btn recommended" onclick="useExample(this)" data-text="I was pulled over for a broken taillight. The officer is asking to search my car. What should I do?">
+            <div class="ekey">A</div>
+            <div class="econtent"><div class="etxt">Traffic stop -- search request</div><div class="esub">Officer asking to search vehicle after equipment stop</div></div>
+            <div class="erec">RECOMMENDED</div>
+          </button>
+          <button class="example-btn" onclick="useExample(this)" data-text="I'm walking home and two officers stopped me on the sidewalk. They're asking for my ID but haven't said why they stopped me.">
+            <div class="ekey">B</div>
+            <div class="econtent"><div class="etxt">Pedestrian stop -- ID demand</div><div class="esub">Officers demanding ID with no stated reason</div></div>
+            <div></div>
+          </button>
+          <button class="example-btn" onclick="useExample(this)" data-text="Police are knocking on my apartment door saying they need to come in and look around. They don't have a warrant. What should I do?">
+            <div class="ekey">C</div>
+            <div class="econtent"><div class="etxt">Home entry -- no warrant</div><div class="esub">Officers requesting entry without warrant</div></div>
+            <div></div>
+          </button>
+          <button class="example-btn" onclick="useExample(this)" data-text="I was arrested during a protest. They never read me my Miranda rights before questioning me. Does that matter?">
+            <div class="ekey">D</div>
+            <div class="econtent"><div class="etxt">Arrest -- Miranda rights</div><div class="esub">Arrested without Miranda warning</div></div>
+            <div></div>
+          </button>
+          <button class="example-btn" onclick="useExample(this)" data-text="I'm at a public protest on a sidewalk. Police are telling everyone to disperse and threatening arrest. We're not blocking traffic. Can they do this?">
+            <div class="ekey">E</div>
+            <div class="econtent"><div class="etxt">Protest -- dispersal order</div><div class="esub">Police ordering dispersal at lawful protest</div></div>
+            <div></div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-wrap">
+        <textarea id="userInput" placeholder="Describe your encounter or situation..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: ANALYSIS PANEL (matches canned demo exactly: 3 cards) -->
+  <div class="analysis-panel">
+
+    <!-- Card 1: Encounter State (matches demo's ENCOUNTER STATE -- LIVE) -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">ENCOUNTER STATE -- LIVE</div>
+        <div class="rtag rt1">SITUATION SCAN</div>
+      </div>
+      <div class="card-bd">
+        <div class="state-grid" id="stateGrid">
+          <div class="sv"><div class="sv-name">Recording</div><div class="sv-val ok" id="sv-rec"><span class="ind ind-g"></span>ACTIVE</div></div>
+          <div class="sv"><div class="sv-name">Witnesses</div><div class="sv-val" id="sv-wit">--</div></div>
+          <div class="sv"><div class="sv-name">Officer Tone</div><div class="sv-val" id="sv-tone">--</div></div>
+          <div class="sv"><div class="sv-name">Jurisdiction</div><div class="sv-val" id="sv-jur">--</div></div>
+          <div class="sv"><div class="sv-name">Stop Type</div><div class="sv-val" id="sv-stop">--</div></div>
+          <div class="sv"><div class="sv-name">Consent</div><div class="sv-val" id="sv-con">--</div></div>
+          <div class="sv"><div class="sv-name">Rights Invoked</div><div class="sv-val" id="sv-rights">None yet</div></div>
+          <div class="sv"><div class="sv-name">Intelligence Profile</div><div class="sv-val ok" id="sv-model">--</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Risk Guidance (matches demo's RISK GUIDANCE -- YOUR OPTIONS) -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">RISK GUIDANCE -- YOUR OPTIONS</div>
+        <div class="rtag rt2">DECISION GUIDE</div>
+      </div>
+      <div class="card-bd" id="r2body">
+        <div class="r2-waiting">Waiting for a decision point...<br><span style="font-size:12px">Vantage activates when your next move can change the outcome.</span></div>
+      </div>
+    </div>
+
+    <!-- Card 3: Anticipatory Analysis (matches demo's ANTICIPATORY ANALYSIS) -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">ANTICIPATORY ANALYSIS</div>
+        <div class="rtag rt25">FORESIGHT ENGINE</div>
+      </div>
+      <div class="card-bd" id="foresightBody">
+        <div class="foresight-wait">Monitoring encounter trajectory...<br><span style="font-size:12px">Foresight Engine activates as the encounter develops.</span></div>
+      </div>
+    </div>
+
+    <div class="powered">
+      Powered by <a href="https://tunedailabs.com">TunedAI Labs</a><br>
+      Causal reasoning in the weights
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ---------------------------------------------------------------
+// CONFIG
+// ---------------------------------------------------------------
+const API_URL = '/api/civil-rights';
+let conversationHistory = [];
+let messageCount = 0;
+let isProcessing = false;
+let encounterType = '--';
+let currentRisk = null;
+
+// ---------------------------------------------------------------
+// HEALTH CHECK
+// ---------------------------------------------------------------
+async function checkHealth() {
+  try {
+    const r = await fetch('/health');
+    const data = await r.json();
+    const dot = document.getElementById('statusDot');
+    const txt = document.getElementById('statusText');
+    const model = document.getElementById('sv-model');
+    const navModel = document.getElementById('navModel');
+
+    if (data.status === 'ok') {
+      if (data.backends['mlx-tuned'] && data.backends['mlx-tuned'].available) {
+        dot.className = 'status-dot online';
+        txt.textContent = 'Intelligence Online';
+        model.textContent = 'Loaded \u2713';
+        model.className = 'sv-val ok';
+        navModel.textContent = 'MLX Local';
+      } else if (data.backends.ollama && data.backends.ollama.available) {
+        dot.className = 'status-dot online';
+        txt.textContent = 'Intelligence Online';
+        model.textContent = 'Loaded \u2713';
+        model.className = 'sv-val ok';
+        navModel.textContent = 'Ollama';
+      } else if (data.backends.openai && data.backends.openai.available) {
+        dot.className = 'status-dot online';
+        txt.textContent = 'Intelligence Online (Cloud)';
+        model.textContent = 'Cloud';
+        model.className = 'sv-val warn';
+        navModel.textContent = 'Cloud';
+      } else {
+        dot.className = 'status-dot';
+        txt.textContent = 'No Backend';
+        model.textContent = 'Offline';
+        model.className = 'sv-val bad';
+        navModel.textContent = 'Offline';
+      }
+    } else {
+      dot.className = 'status-dot';
+      txt.textContent = 'No Backend';
+      model.textContent = 'Offline';
+      model.className = 'sv-val bad';
+      navModel.textContent = 'Offline';
+    }
+  } catch (e) {
+    document.getElementById('statusDot').className = 'status-dot';
+    document.getElementById('statusText').textContent = 'API Unreachable';
+    document.getElementById('sv-model').textContent = 'Offline';
+    document.getElementById('sv-model').className = 'sv-val bad';
+    document.getElementById('navModel').textContent = 'Offline';
+  }
+}
+checkHealth();
+setInterval(checkHealth, 30000);
+
+// ---------------------------------------------------------------
+// EXAMPLES
+// ---------------------------------------------------------------
+function useExample(btn) {
+  var text = btn.getAttribute('data-text');
+  if (!text) return;
+  document.getElementById('userInput').value = text;
+  autoResize(document.getElementById('userInput'));
+  sendMessage();
+}
+
+// ---------------------------------------------------------------
+// INPUT
+// ---------------------------------------------------------------
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+// ---------------------------------------------------------------
+// SEND MESSAGE
+// ---------------------------------------------------------------
+async function sendMessage() {
+  var input = document.getElementById('userInput');
+  var text = input.value.trim();
+  if (!text || isProcessing) return;
+
+  isProcessing = true;
+  document.getElementById('sendBtn').disabled = true;
+
+  // Hide welcome on first message
+  var welcome = document.getElementById('welcome');
+  if (welcome) welcome.style.display = 'none';
+
+  // Show system activation on first message
+  if (messageCount === 0) {
+    addMsg('system', '<span class="dot"></span> Vantage activated. Recording. Intelligence profile loaded.');
+  }
+
+  // Add user message
+  addMsg('citizen', escapeHtml(text));
+  conversationHistory.push({ role: 'user', content: text });
+  messageCount++;
+  updateEncounterState(text);
+
+  input.value = '';
+  input.style.height = 'auto';
+
+  // Typing indicator
+  var typingId = showTyping();
+
+  try {
+    var jurisdiction = document.getElementById('jurisdictionSelect').value;
+    var r = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: text,
+        jurisdiction: jurisdiction,
+        history: conversationHistory.slice(0, -1)
+      })
+    });
+
+    var data = await r.json();
+    removeTyping(typingId);
+
+    if (data.error) {
+      addMsg('system', '<span class="dot" style="background:var(--red)"></span> Error: ' + escapeHtml(data.error));
+    } else {
+      renderAIResponse(data);
+      conversationHistory.push({ role: 'assistant', content: data.response });
+      updateAnalysisFromResponse(data);
+    }
+  } catch (e) {
+    removeTyping(typingId);
+    addMsg('system', '<span class="dot" style="background:var(--red)"></span> Connection error. Ensure API server and model are running.');
+  }
+
+  isProcessing = false;
+  document.getElementById('sendBtn').disabled = false;
+  input.focus();
+}
+
+// ---------------------------------------------------------------
+// RENDER MESSAGES (matching canned demo message types)
+// ---------------------------------------------------------------
+function addMsg(type, html) {
+  var container = document.getElementById('transcript');
+  var div = document.createElement('div');
+  div.className = 'msg msg-' + type;
+
+  if (type === 'system') {
+    div.innerHTML = '<div class="bubble">' + html + '</div>';
+  } else if (type === 'citizen') {
+    div.innerHTML = '<div class="avatar">\ud83d\udc64</div><div class="bubble">' + html + '</div>';
+  } else if (type === 'rungsx') {
+    div.innerHTML = '<div class="bubble">' + html + '</div>';
+  } else if (type === 'legal') {
+    div.innerHTML = '<div class="bubble">' + html + '</div>';
+  }
+
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function renderAIResponse(data) {
+  var response = data.response || '';
+  var tiers = data.tiers || [];
+  var timeInfo = data.time_ms ? ' \u00B7 ' + (data.time_ms / 1000).toFixed(1) + 's' : '';
+  var backendInfo = data.backend ? ' \u00B7 ' + data.backend : '';
+
+  if (tiers.length > 0) {
+    // Tiered response -- render each tier as a block inside a rungsx bubble
+    var tiersHtml = '';
+    for (var i = 0; i < tiers.length; i++) {
+      var tier = tiers[i];
+      var n = tier.tier;
+      var labels = { 1: 'Situation Assessment', 2: 'Legal Analysis', 3: 'Risk Projection', 4: 'Recommended Action' };
+      var label = labels[n] || tier.name;
+      tiersHtml += '<div class="tier-block tier-' + n + '">' +
+        '<div class="tier-label"><span class="tier-badge">T' + n + '</span>' + escapeHtml(label) + '</div>' +
+        '<div class="tier-content">' + formatContent(tier.content) + '</div></div>';
+    }
+    addMsg('rungsx', '<b>Vantage -- Analysis Complete</b>' + tiersHtml);
+  } else {
+    // No tiers parsed -- split response into analysis + legal note
+    var parts = splitResponse(response);
+
+    // Main analysis as rungsx message
+    addMsg('rungsx', '<b>Vantage -- Analysis</b><br><br>' + formatContent(parts.analysis));
+
+    // If there's a recommendation, show it as a legal note
+    if (parts.recommendation) {
+      addMsg('legal', '<b>Recommended Action:</b> ' + formatContent(parts.recommendation));
+    }
+  }
+}
+
+function splitResponse(text) {
+  // Try to extract a recommendation/action section from the response
+  var lower = text.toLowerCase();
+  var splitPatterns = [
+    /\n(?:the\s+)?optimal\s+action[:\s]/i,
+    /\n(?:the\s+)?recommended\s+(?:action|approach)[:\s]/i,
+    /\n(?:the\s+)?best\s+(?:course|approach|action)[:\s]/i,
+    /\n(?:what\s+(?:you\s+)?should\s+(?:do|say))[:\s]/i,
+    /\nthe\s+risk-neutral\s+option[:\s]/i,
+  ];
+
+  for (var i = 0; i < splitPatterns.length; i++) {
+    var match = text.match(splitPatterns[i]);
+    if (match) {
+      var idx = text.indexOf(match[0]);
+      return {
+        analysis: text.substring(0, idx).trim(),
+        recommendation: text.substring(idx).trim()
+      };
+    }
+  }
+
+  return { analysis: text, recommendation: '' };
+}
+
+function showTyping() {
+  var container = document.getElementById('transcript');
+  var id = 'typing-' + Date.now();
+  var div = document.createElement('div');
+  div.className = 'msg msg-rungsx';
+  div.id = id;
+  div.innerHTML = '<div class="bubble"><div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>' +
+    '<div style="font-size:11px;color:var(--text-muted);margin-top:4px">Analyzing encounter...</div></div>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return id;
+}
+
+function removeTyping(id) {
+  var el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+// ---------------------------------------------------------------
+// ENCOUNTER STATE (Card 1)
+// ---------------------------------------------------------------
+function updateEncounterState(userText) {
+  var jur = document.getElementById('jurisdictionSelect').value || 'Auto-detect';
+  document.getElementById('sv-jur').textContent = jur;
+
+  // Detect encounter type
+  var lower = userText.toLowerCase();
+  if (lower.match(/pull|traffic|taillight|tail light|drove|driving|license|registration|speeding/))
+    encounterType = 'Traffic -- Equipment';
+  else if (lower.match(/walk|sidewalk|street|pedestrian|stopped me/))
+    encounterType = 'Pedestrian -- No stated reason';
+  else if (lower.match(/door|home|apartment|house|knock/))
+    encounterType = 'Home Entry';
+  else if (lower.match(/arrest|handcuff|custody|jail|booked/))
+    encounterType = 'Arrest/Custody';
+  else if (lower.match(/protest|rally|march|demonstration|first amendment|1st amendment/))
+    encounterType = 'Protest/1A';
+  else if (lower.match(/record|film|video|phone|camera/))
+    encounterType = 'Recording Encounter';
+  else encounterType = 'General';
+
+  document.getElementById('sv-stop').textContent = encounterType;
+  document.getElementById('sv-tone').textContent = 'Assessing...';
+  document.getElementById('sv-wit').textContent = lower.includes('passenger') ? '1 (passenger)' : lower.includes('witness') ? 'Present' : '--';
+
+  // Update stage bar
+  for (var i = 0; i < 6; i++) {
+    var dot = document.getElementById('sd' + i);
+    if (!dot) continue;
+    dot.className = 'stage-dot';
+    if (i < messageCount) dot.classList.add('done');
+    else if (i === messageCount) dot.classList.add('active');
+  }
+  document.getElementById('stageLbl').textContent = 'Exchange ' + messageCount;
+
+  // Update header
+  var titleMap = {
+    'Traffic -- Equipment': 'ENCOUNTER -- TRAFFIC STOP',
+    'Pedestrian -- No stated reason': 'ENCOUNTER -- STREET STOP',
+    'Home Entry': 'ENCOUNTER -- HOME ENTRY',
+    'Arrest/Custody': 'ENCOUNTER -- ARREST',
+    'Protest/1A': 'ENCOUNTER -- PROTEST',
+    'Recording Encounter': 'ENCOUNTER -- RECORDING',
+    'General': 'ENCOUNTER -- LIVE ANALYSIS'
+  };
+  document.getElementById('encTitle').textContent = titleMap[encounterType] || 'ENCOUNTER -- LIVE ANALYSIS';
+
+  var now = new Date();
+  var timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('encMeta').textContent = timeStr + ' \u00B7 ' + jur;
+}
+
+// ---------------------------------------------------------------
+// ANALYSIS (Cards 2 & 3) -- populate from AI response
+// ---------------------------------------------------------------
+function updateAnalysisFromResponse(data) {
+  var text = data.response.toLowerCase();
+
+  // -- ENCOUNTER STATE updates --
+  // Tone detection
+  if (text.match(/hostile|aggressive|yell|shout|force/))
+    setSV('sv-tone', 'Hostile', 'warn');
+  else if (text.match(/profession|routine|calm|normal/))
+    setSV('sv-tone', 'Professional', '');
+  else
+    setSV('sv-tone', 'Neutral', '');
+
+  // Consent status
+  if (text.match(/don.t consent|deny consent|refuse.*search|do not consent/))
+    setSV('sv-con', 'Deny \u2713', '');
+  else if (text.match(/consent|agree.*search|let.*search|go ahead/))
+    setSV('sv-con', 'Given \u26a0', 'warn');
+  else
+    setSV('sv-con', '--', '');
+
+  // Rights invoked
+  var rights = [];
+  if (text.includes('fourth amendment') || text.includes('4th amendment')) rights.push('4th');
+  if (text.includes('fifth amendment') || text.includes('5th amendment') || text.includes('remain silent')) rights.push('5th');
+  if (text.includes('first amendment') || text.includes('1st amendment')) rights.push('1st');
+  if (text.includes('miranda')) rights.push('Miranda');
+  if (text.includes('attorney') || text.includes('lawyer')) rights.push('Counsel');
+  document.getElementById('sv-rights').textContent = rights.length > 0 ? rights.join(' / ') : 'None yet';
+
+  // -- RISK GUIDANCE (Card 2) --
+  updateRiskGuidance(data);
+
+  // -- FORESIGHT (Card 3) --
+  updateForesight(data);
+}
+
+function setSV(id, text, cls) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'sv-val' + (cls ? ' ' + cls : '');
+}
+
+function updateRiskGuidance(data) {
+  var body = document.getElementById('r2body');
+  var text = data.response;
+  var lower = text.toLowerCase();
+
+  // Extract risk options from the response
+  var options = extractOptions(text);
+
+  if (options.length > 0) {
+    var html = '<div class="r2-note">Vantage has analyzed the available responses to your encounter. Each option is scored by measured outcome impact.</div>';
+
+    for (var i = 0; i < options.length; i++) {
+      var opt = options[i];
+      var tierCls = opt.risk === 'best' ? 'best' : opt.risk === 'worst' ? 'worst' : '';
+      var labelCls = opt.risk === 'best' ? ' best' : opt.risk === 'worst' ? ' worst' : '';
+      var badgeTxt = opt.risk === 'best' ? 'LOWEST RISK' : opt.risk === 'worst' ? 'HIGHEST RISK' : 'MODERATE';
+      var badgeCls = opt.risk === 'best' ? 'badge-best' : opt.risk === 'worst' ? 'badge-worst' : 'badge-mid';
+
+      html += '<div class="r2-option ' + tierCls + '">';
+      html += '<div class="r2-option-head"><div class="r2-option-label' + labelCls + '">' + escapeHtml(opt.label) + '</div>';
+      html += '<div class="r2-badge ' + badgeCls + '">' + badgeTxt + '</div></div>';
+
+      // Risk bars
+      html += '<div class="risk-bars">';
+      for (var j = 0; j < opt.bars.length; j++) {
+        var b = opt.bars[j];
+        html += '<div class="risk-bar-row"><div class="rb-name">' + b.name + '</div>';
+        html += '<div class="rb-track"><div class="rb-fill ' + b.cls + '" style="width:0%" data-t="' + b.fill + '"></div></div>';
+        html += '<div class="rb-label ' + b.cls + '">' + b.lbl + '</div></div>';
+      }
+      html += '</div>';
+
+      if (opt.plain) {
+        html += '<div class="r2-plain">' + escapeHtml(opt.plain) + '</div>';
+      }
+      html += '</div>';
+    }
+
+    body.innerHTML = html;
+    // Animate bars
+    setTimeout(function() {
+      body.querySelectorAll('.rb-fill').forEach(function(b) { b.style.width = b.dataset.t + '%'; });
+    }, 120);
+  } else {
+    // Fallback: show general risk assessment
+    var riskLevel = 'MONITOR';
+    var riskCls = 'fa-med';
+    if (lower.match(/high risk|highest risk|significant risk|danger|critical|force/)) {
+      riskLevel = 'ELEVATED RISK'; riskCls = 'fa-high';
+    } else if (lower.match(/low risk|minimal|safe|protected|strong/)) {
+      riskLevel = 'LOW RISK'; riskCls = 'fa-low';
+    }
+
+    var html = '<div class="fa-level ' + riskCls + '"><span class="fa-dot"></span>' + riskLevel + '</div>';
+    html += '<div class="r2-note">Vantage has scored the encounter based on the available information. The decision guide will refine as the encounter develops.</div>';
+
+    // Generate bars from response content
+    var protFill = lower.match(/strong|maximum|full|protected/) ? 85 : lower.match(/partial|some/) ? 55 : 35;
+    var searchFill = lower.match(/search/) ? (lower.match(/deny|refuse|don.t consent/) ? 15 : 65) : 20;
+    var arrestFill = lower.match(/arrest/) ? 55 : 20;
+
+    html += '<div class="risk-bars" style="margin-top:10px">';
+    html += riskBarHtml('Protection level', protFill, protFill > 60 ? 'good' : protFill > 40 ? 'med' : 'danger', protFill > 60 ? 'Strong' : protFill > 40 ? 'Partial' : 'Low');
+    html += riskBarHtml('Search exposure', searchFill, searchFill > 50 ? 'danger' : searchFill > 30 ? 'med' : 'good', searchFill > 50 ? 'Elevated' : searchFill > 30 ? 'Moderate' : 'Low');
+    html += riskBarHtml('Arrest exposure', arrestFill, arrestFill > 50 ? 'danger' : arrestFill > 30 ? 'med' : 'good', arrestFill > 50 ? 'Elevated' : arrestFill > 30 ? 'Moderate' : 'Low');
+    html += '</div>';
+
+    body.innerHTML = html;
+    setTimeout(function() {
+      body.querySelectorAll('.rb-fill').forEach(function(b) { b.style.width = b.dataset.t + '%'; });
+    }, 120);
+  }
+
+  currentRisk = riskLevel;
+}
+
+function extractOptions(text) {
+  // Try to find option-style sections in the response
+  var options = [];
+  var lower = text.toLowerCase();
+
+  // Pattern: "The risk of complying/consenting/refusing" or similar
+  var consentMatch = lower.includes('consent') || lower.includes('search');
+  var refuseMatch = lower.includes('refus') || lower.includes('deny') || lower.includes("don't consent");
+  var warrantMatch = lower.includes('warrant');
+
+  if (consentMatch && refuseMatch) {
+    // Build structured options from the analysis
+    options.push({
+      label: 'Consent to the search',
+      risk: 'worst',
+      bars: [
+        { name: 'Protection level', fill: 18, cls: 'danger', lbl: 'Minimal' },
+        { name: 'Search exposure', fill: 92, cls: 'danger', lbl: 'Very High' },
+        { name: 'Arrest exposure', fill: 65, cls: 'bad', lbl: 'Elevated' },
+      ],
+      plain: 'Consenting removes your constitutional protection. The search becomes certain.'
+    });
+
+    options.push({
+      label: '"I don\'t consent to searches."',
+      risk: 'best',
+      bars: [
+        { name: 'Protection level', fill: 92, cls: 'good', lbl: 'Maximum' },
+        { name: 'Search exposure', fill: 10, cls: 'good', lbl: 'Very Low' },
+        { name: 'Arrest exposure', fill: 15, cls: 'good', lbl: 'Minimal' },
+      ],
+      plain: 'Explicit rights invocation provides the strongest available legal protection.'
+    });
+
+    if (warrantMatch) {
+      options.push({
+        label: '"Do you have a warrant or probable cause?"',
+        risk: 'mid',
+        bars: [
+          { name: 'Protection level', fill: 74, cls: 'good', lbl: 'Good' },
+          { name: 'Search exposure', fill: 28, cls: 'med', lbl: 'Moderate' },
+          { name: 'Arrest exposure', fill: 30, cls: 'med', lbl: 'Low-Med' },
+        ],
+        plain: 'Tests the legal basis. Good response but less protective than explicit denial.'
+      });
+    }
+  } else if (lower.includes('detained') || lower.includes('free to go')) {
+    options.push({
+      label: '"Am I being detained or am I free to go?"',
+      risk: 'best',
+      bars: [
+        { name: 'Protection level', fill: 94, cls: 'good', lbl: 'Maximum' },
+        { name: 'Detention risk', fill: 20, cls: 'good', lbl: 'Low' },
+        { name: 'Arrest exposure', fill: 12, cls: 'good', lbl: 'Minimal' },
+      ],
+      plain: 'Forces the officer to commit to a legal basis. Most protective response.'
+    });
+
+    options.push({
+      label: 'Comply and answer questions',
+      risk: 'mid',
+      bars: [
+        { name: 'Protection level', fill: 42, cls: 'med', lbl: 'Partial' },
+        { name: 'Detention risk', fill: 65, cls: 'bad', lbl: 'Elevated' },
+        { name: 'Arrest exposure', fill: 45, cls: 'bad', lbl: 'Moderate' },
+      ],
+      plain: 'Voluntary engagement gives the officer investigative latitude without legal obligation.'
+    });
+  }
+
+  return options;
+}
+
+function updateForesight(data) {
+  var body = document.getElementById('foresightBody');
+  var text = data.response.toLowerCase();
+
+  var level, levelCls, fBody, next;
+
+  if (text.match(/high risk|danger|force|critical|significant risk/)) {
+    level = 'ELEVATED RISK';
+    levelCls = 'fa-high';
+    fBody = 'Encounter risk is elevated. The AI has identified significant legal exposure in the current situation. Follow the recommended action to reduce risk.';
+    next = 'Monitor officer behavior closely. Any escalation should be documented.';
+  } else if (text.match(/moderate|caution|careful|elevated/)) {
+    level = 'MONITOR';
+    levelCls = 'fa-med';
+    fBody = 'Encounter is at a decision point. Your next response will determine the trajectory. Review the risk guidance before responding.';
+    next = 'Decision point active. Your response determines the outcome trajectory.';
+  } else {
+    level = 'LOW RISK';
+    levelCls = 'fa-low';
+    fBody = 'Current trajectory is favorable. Rights assertion detected or recommended. Follow the guidance to maintain protection.';
+    next = 'Encounter trending toward resolution. Monitoring for any escalation.';
+  }
+
+  var html = '<div class="fa-level ' + levelCls + '"><span class="fa-dot"></span>' + level + '</div>';
+  html += '<div class="fa-body">' + fBody + '</div>';
+  html += '<div class="fa-next">\u2192 ' + next + '</div>';
+  body.innerHTML = html;
+}
+
+function riskBarHtml(name, fill, cls, label) {
+  return '<div class="risk-bar-row"><div class="rb-name">' + name + '</div>' +
+    '<div class="rb-track"><div class="rb-fill ' + cls + '" style="width:0%" data-t="' + fill + '"></div></div>' +
+    '<div class="rb-label ' + cls + '">' + label + '</div></div>';
+}
+
+// ---------------------------------------------------------------
+// UTILITIES
+// ---------------------------------------------------------------
+function escapeHtml(text) {
+  var div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function formatContent(text) {
+  var html = escapeHtml(text);
+  html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+  html = html.replace(/\n\n/g, '<br><br>');
+  html = html.replace(/\n/g, '<br>');
+  return html;
+}
+</script>
+
+</body>
+</html>
