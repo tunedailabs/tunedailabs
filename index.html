@@ -334,18 +334,41 @@ footer{padding:40px 48px;border-top:1px solid var(--border);display:flex;justify
       </tr>
       <tr>
         <td style="color:#94a3b8">Base Qwen 2.5-7B</td>
-        <td style="color:#94a3b8">~62%</td>
+        <td style="color:#94a3b8">63%</td>
         <td>
           <div class="score-bar-wrap">
-            <div class="score-bar-bg"><div class="score-bar-fill" style="width:62%;background:#4b5563"></div></div>
-            <span class="score-val" style="color:#64748b">62%</span>
+            <div class="score-bar-bg"><div class="score-bar-fill" style="width:63%;background:#4b5563"></div></div>
+            <span class="score-val" style="color:#64748b">63%</span>
           </div>
         </td>
-        <td style="font-size:12px;color:#64748b">Same model · no fine-tuning</td>
+        <td style="font-size:12px;color:#64748b">Same model · no fine-tuning · independently verified</td>
       </tr>
     </tbody>
   </table>
   <p style="font-size:12px;color:var(--muted);margin-top:14px">CLadder benchmark — 10,000+ questions. Public. Independently runnable. <a href="https://github.com/causalNLP/cladder" target="_blank" style="color:var(--orange)">Verify it yourself →</a></p>
+
+  <div style="margin-top:56px;padding-top:48px;border-top:1px solid var(--border)">
+    <div class="sec-tag" style="margin-bottom:14px">In Production</div>
+    <h3 style="font-size:22px;font-weight:800;margin-bottom:12px">Live deployments.</h3>
+    <p style="font-size:15px;color:var(--soft);max-width:580px;margin-bottom:32px;line-height:1.75">Causal reasoning in active use across civil rights, legal, and business domains.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--orange);text-transform:uppercase;margin-bottom:12px">Civil Rights</div>
+        <h4 style="font-size:16px;font-weight:800;margin-bottom:8px">MyGuardian</h4>
+        <p style="font-size:13px;color:var(--soft);line-height:1.65">Real-time causal guidance during civil rights encounters. The model computes probability distributions over outcomes at each decision point — not retrieved advice, but computed causal analysis.</p>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--orange);text-transform:uppercase;margin-bottom:12px">Legal</div>
+        <h4 style="font-size:16px;font-weight:800;margin-bottom:8px">Attorney Platform</h4>
+        <p style="font-size:13px;color:var(--soft);line-height:1.65">Causal reasoning for defense case building — evidence strength, motion strategy, verdict probability under different decision paths. Same engine, legal domain.</p>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--orange);text-transform:uppercase;margin-bottom:12px">Business</div>
+        <h4 style="font-size:16px;font-weight:800;margin-bottom:8px">Knapsack</h4>
+        <p style="font-size:13px;color:var(--soft);line-height:1.65">Four causal reasoning agents for business operations — account health, priority sequencing, email triage, and schedule risk. Each scores interventions by probability of changing the outcome.</p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- HOW IT WORKS -->
@@ -474,6 +497,12 @@ footer{padding:40px 48px;border-top:1px solid var(--border);display:flex;justify
       <h3>Research Collaboration</h3>
       <p>If you have a novel reasoning problem — something no existing model handles well — we research and develop a fine-tuning approach from scratch. We publish when appropriate.</p>
       <span class="svc-tag">Custom Scope</span>
+    </div>
+    <div class="svc">
+      <div class="svc-icon">⚙️</div>
+      <h3>Causal AI Platform</h3>
+      <p>For high-stakes domains — civil rights, legal, healthcare, security — we license causal reasoning as an API service. Your application calls our endpoints and receives structured causal probability outputs. The model stays on our infrastructure. You get the results.</p>
+      <span class="svc-tag">Enterprise</span>
     </div>
   </div>
 </div>
