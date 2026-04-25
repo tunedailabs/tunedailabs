@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TunedAI — Executive Agent Intelligence Demo</title>
+<style>
+/* ── AUTH GATE ── */
+.auth-overlay{position:fixed;inset:0;background:#0f0f13;z-index:9999;display:flex;align-items:center;justify-content:center}
+.auth-overlay.hidden{display:none}
+.auth-box{background:#1a1a22;border:1px solid #2a2a38;border-radius:12px;padding:40px;max-width:400px;width:90%;text-align:center}
+.auth-box h2{font-size:18px;margin-bottom:6px;color:#f97316;font-family:-apple-system,sans-serif}
+.auth-box .auth-sub{color:#6b6b8a;font-size:12px;margin-bottom:24px}
+.auth-box input{width:100%;background:#0f0f13;border:1px solid #2a2a38;color:#e2e2ee;padding:12px 16px;border-radius:6px;font-family:inherit;font-size:14px;text-align:center;outline:none;margin-bottom:12px}
+.auth-box input:focus{border-color:#f97316}
+.auth-box button{width:100%;background:#f97316;color:#fff;border:none;padding:12px;border-radius:6px;font-family:inherit;font-size:14px;cursor:pointer;font-weight:700}
+.auth-box button:hover{opacity:0.85}
+.auth-error{color:#ef4444;font-size:12px;margin-top:8px;min-height:18px}
+.auth-logo{font-size:24px;font-weight:900;margin-bottom:16px;color:#e2e2ee;letter-spacing:-0.5px}
+.auth-logo span{color:#f97316}
+
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f0f13;--surface:#1a1a22;--surface2:#22222e;
+  --border:#2a2a38;--border-lite:#353545;
+  --orange:#f97316;--orange-bg:rgba(249,115,22,0.1);--orange-dark:#c2410c;
+  --green:#22c55e;--green-bg:rgba(34,197,94,0.1);--green-dark:#15803d;
+  --red:#ef4444;--red-bg:rgba(239,68,68,0.1);--red-dark:#b91c1c;
+  --yellow:#f59e0b;--yellow-bg:rgba(245,158,11,0.1);
+  --blue:#3b82f6;--blue-bg:rgba(59,130,246,0.1);
+  --purple:#8b5cf6;--purple-bg:rgba(139,92,246,0.1);
+  --text:#e2e2ee;--text-soft:#a0a0b8;--text-muted:#6b6b8a;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.6}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── PAGE SYSTEM ── */
+.page{display:none}
+.page.active{display:block}
+
+/* ═══════ PAGE 1 — OVERVIEW ═══════ */
+.ov-header{padding:36px 48px 28px;border-bottom:1px solid var(--border)}
+.ov-logo{font-size:24px;font-weight:900;letter-spacing:-0.5px}
+.ov-logo span{color:var(--orange)}
+.ov-title{font-size:28px;font-weight:800;color:var(--text);margin-top:12px;line-height:1.2}
+.ov-sub{font-size:15px;color:var(--text-soft);margin-top:6px;max-width:700px;line-height:1.7}
+.ov-meta{font-size:12px;color:var(--text-muted);margin-top:8px}
+
+.ov-stats{display:flex;border-bottom:1px solid var(--border)}
+.ov-stat{flex:1;text-align:center;padding:18px 12px;border-right:1px solid var(--border)}
+.ov-stat:last-child{border-right:none}
+.ov-stat-val{font-size:18px;font-weight:800;color:var(--text);display:block}
+.ov-stat-lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px;display:block}
+
+.ov-problem{padding:32px 48px;border-bottom:1px solid var(--border)}
+.ov-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--orange);margin-bottom:14px}
+.ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.ov-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+.ov-card-icon{font-size:22px;margin-bottom:8px}
+.ov-card-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px}
+.ov-card-body{font-size:13px;color:var(--text-soft);line-height:1.65}
+.ov-card.bad{border-left:3px solid var(--red)}
+.ov-card.good{border-left:3px solid var(--green)}
+
+.ov-tiers{padding:32px 48px;border-bottom:1px solid var(--border)}
+.tier-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+.tier-card{background:var(--surface);border:1px solid var(--border);border-top:3px solid;border-radius:8px;padding:14px 16px}
+.tier-card:nth-child(1){border-top-color:var(--blue)}
+.tier-card:nth-child(2){border-top-color:var(--orange)}
+.tier-card:nth-child(3){border-top-color:var(--purple)}
+.tier-card:nth-child(4){border-top-color:var(--green)}
+.tier-tag{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:5px}
+.tier-card:nth-child(1) .tier-tag{color:var(--blue)}
+.tier-card:nth-child(2) .tier-tag{color:var(--orange)}
+.tier-card:nth-child(3) .tier-tag{color:var(--purple)}
+.tier-card:nth-child(4) .tier-tag{color:var(--green)}
+.tier-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.tier-desc{font-size:12px;color:var(--text-soft);line-height:1.55}
+
+.ov-cta{text-align:center;padding:36px 48px}
+.ov-cta-btn{background:var(--orange);color:#fff;border:none;padding:15px 42px;font-size:16px;font-weight:700;border-radius:8px;cursor:pointer;letter-spacing:.3px;transition:opacity .2s}
+.ov-cta-btn:hover{opacity:.85}
+.ov-cta-note{font-size:13px;color:var(--text-muted);margin-top:10px}
+
+/* ═══════ PAGE 2 — DEMO ═══════ */
+.demo-nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:stretch;gap:0}
+.demo-back{font-size:13px;font-weight:600;color:var(--text-soft);padding:0 18px 0 0;border:none;border-right:1px solid var(--border);margin-right:16px;cursor:pointer;background:none;display:flex;align-items:center;gap:6px}
+.demo-back:hover{color:var(--text)}
+.demo-brand{font-size:13px;font-weight:800;color:var(--text);display:flex;align-items:center;padding:0 18px 0 0;border-right:1px solid var(--border);margin-right:4px;gap:8px;white-space:nowrap}
+.demo-badge{background:var(--orange);color:#fff;font-size:9px;font-weight:700;padding:3px 7px;border-radius:3px;letter-spacing:.5px}
+.tab{padding:14px 18px;font-size:14px;font-weight:600;color:var(--text-soft);cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;user-select:none;white-space:nowrap}
+.tab:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.tab.active{color:var(--text);border-bottom-color:var(--orange)}
+.tab-badge{background:var(--border);color:var(--text-muted);font-size:10px;padding:2px 7px;margin-left:6px;border-radius:3px;font-weight:600}
+.tab.active .tab-badge{background:var(--orange);color:#fff}
+
+.demo-main{max-width:900px;margin:0 auto;padding:24px 32px}
+
+/* Chat interface */
+.chat-container{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;min-height:600px;display:flex;flex-direction:column}
+.chat-header{background:var(--surface2);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.chat-agent-name{font-size:14px;font-weight:700;color:var(--text)}
+.chat-agent-sub{font-size:12px;color:var(--text-muted);margin-top:2px}
+.chat-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--green);font-weight:600}
+.chat-status-dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
+
+.chat-messages{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;min-height:400px}
+
+.msg{display:flex;gap:12px;align-items:flex-start;animation:fadeUp .3s ease}
+.msg-user{flex-direction:row-reverse}
+.msg .avatar{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;font-weight:700}
+.msg-user .avatar{background:var(--orange-bg);color:var(--orange)}
+.msg-agent .avatar{background:var(--blue-bg);color:var(--blue)}
+.msg-system .avatar{background:var(--green-bg);color:var(--green)}
+
+.bubble{padding:14px 18px;border-radius:12px;max-width:85%;font-size:14px;line-height:1.7}
+.msg-user .bubble{background:var(--orange);color:#fff;border-radius:12px 2px 12px 12px}
+.msg-agent .bubble{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:2px 12px 12px 12px}
+.msg-system .bubble{background:var(--green-bg);border:1px solid rgba(34,197,94,.2);color:var(--green);font-size:13px;font-weight:600;border-radius:20px;padding:8px 16px}
+
+/* Tier blocks inside agent responses */
+.tier-block{margin:10px 0 6px;padding:12px 14px;border-radius:8px;border-left:3px solid;font-size:13px;line-height:1.65}
+.tier-block.t1{background:var(--blue-bg);border-color:var(--blue)}
+.tier-block.t2{background:var(--orange-bg);border-color:var(--orange)}
+.tier-block.t3{background:var(--purple-bg);border-color:var(--purple)}
+.tier-block.t4{background:var(--green-bg);border-color:var(--green)}
+.tier-block .tier-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.tier-block.t1 .tier-label{color:var(--blue)}
+.tier-block.t2 .tier-label{color:var(--orange)}
+.tier-block.t3 .tier-label{color:var(--purple)}
+.tier-block.t4 .tier-label{color:var(--green)}
+.tier-block b{color:var(--text)}
+.tier-block .tier-body{color:var(--text-soft)}
+
+/* Calibration block */
+.calibration-block{margin:10px 0 6px;padding:12px 14px;border-radius:8px;background:var(--yellow-bg);border-left:3px solid var(--yellow);font-size:13px;line-height:1.65}
+.calibration-block .cal-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--yellow);margin-bottom:6px}
+.calibration-block .cal-body{color:var(--text-soft)}
+
+/* Source evaluation block */
+.source-block{margin:8px 0 4px;padding:10px 14px;border-radius:6px;font-size:13px;line-height:1.55;display:flex;align-items:flex-start;gap:10px}
+.source-block.trusted{background:var(--green-bg);border:1px solid rgba(34,197,94,.15)}
+.source-block.untrusted{background:var(--red-bg);border:1px solid rgba(239,68,68,.15)}
+.source-block.partial{background:var(--yellow-bg);border:1px solid rgba(245,158,11,.15)}
+.source-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.source-body{flex:1}
+.source-body b{color:var(--text)}
+.source-body .source-reason{color:var(--text-muted);font-size:12px;margin-top:3px}
+
+/* Comparison banner */
+.compare-banner{background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin:20px 0;padding:18px 22px}
+.compare-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--orange);margin-bottom:12px}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.compare-col{padding:14px;border-radius:8px}
+.compare-col.before{background:var(--red-bg);border:1px solid rgba(239,68,68,.15)}
+.compare-col.after{background:var(--green-bg);border:1px solid rgba(34,197,94,.15)}
+.compare-col-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.compare-col.before .compare-col-title{color:var(--red)}
+.compare-col.after .compare-col-title{color:var(--green)}
+.compare-col-body{font-size:13px;line-height:1.6;color:var(--text-soft)}
+
+/* Typing indicator */
+.typing{display:flex;gap:4px;padding:8px 12px}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--text-muted);animation:pulse 1.2s infinite}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+
+/* Reset */
+.reset-bar{text-align:center;padding:16px;border-top:1px solid var(--border)}
+.reset-btn{background:var(--surface2);color:var(--text-soft);border:1px solid var(--border);padding:10px 24px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer}
+.reset-btn:hover{border-color:var(--orange);color:var(--orange)}
+
+.footer{text-align:center;padding:20px;font-size:11px;color:var(--text-muted)}
+</style>
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box">
+    <div class="auth-logo">Tuned<span>AI</span> Labs</div>
+    <h2>Agent Intelligence Demo</h2>
+    <div class="auth-sub">Enter access code to continue</div>
+    <input type="password" id="authCode" placeholder="Access code" onkeydown="if(event.key==='Enter')checkAuth()">
+    <button onclick="checkAuth()">Enter</button>
+    <div class="auth-error" id="authError"></div>
+  </div>
+</div>
+<script>
+function checkAuth(){
+  var c=document.getElementById('authCode').value.trim();
+  if(c==='tunedai'){
+    document.getElementById('authOverlay').classList.add('hidden');
+    sessionStorage.setItem('ks_auth','1');
+    sessionStorage.setItem('vantage_auth','1');
+    sessionStorage.setItem('ks_agent_auth','1');
+    sessionStorage.setItem('master_auth','1');
+  } else if(c==='knapsack2026'){
+    document.getElementById('authOverlay').classList.add('hidden');
+    sessionStorage.setItem('ks_auth','1');
+  } else {
+    document.getElementById('authError').textContent='Invalid access code.';
+  }
+}
+if(sessionStorage.getItem('ks_auth')==='1'||sessionStorage.getItem('master_auth')==='1') document.getElementById('authOverlay').classList.add('hidden');
+</script>
+
+<!-- ═══════ PAGE 1 — OVERVIEW ═══════ -->
+<div id="page1" class="page active">
+
+  <div class="ov-header">
+    <div class="ov-logo">Tuned<span>AI</span> Labs</div>
+    <div class="ov-title">What happens when your agents<br>actually reason?</div>
+    <div class="ov-sub">Your agents answer questions. Ours explain why — then tell you what they don't know, and go find it. Three capabilities, one adapter, zero API dependency.</div>
+    <div class="ov-meta">TunedAI Labs &nbsp;·&nbsp; Executive Agent Intelligence &nbsp;·&nbsp; Confidential Demo</div>
+  </div>
+
+  <div class="ov-stats">
+    <div class="ov-stat"><span class="ov-stat-val">160 MB</span><span class="ov-stat-lbl">Adapter Size</span></div>
+    <div class="ov-stat"><span class="ov-stat-val">4 Tiers</span><span class="ov-stat-lbl">Reasoning Depth</span></div>
+    <div class="ov-stat"><span class="ov-stat-val">0</span><span class="ov-stat-lbl">API Calls Required</span></div>
+    <div class="ov-stat"><span class="ov-stat-val">On-Device</span><span class="ov-stat-lbl">All Data Stays Local</span></div>
+  </div>
+
+  <div class="ov-problem">
+    <div class="ov-section-title">The Problem With Current AI Agents</div>
+    <div class="ov-grid">
+      <div class="ov-card bad">
+        <div class="ov-card-icon">📋</div>
+        <div class="ov-card-title">Flat Output</div>
+        <div class="ov-card-body">Current agents produce task lists and summaries. They don't explain why something matters, what caused it, or what happens next. Executives get answers without reasoning.</div>
+      </div>
+      <div class="ov-card bad">
+        <div class="ov-card-icon">🎭</div>
+        <div class="ov-card-title">Confident Fabrication</div>
+        <div class="ov-card-body">When agents don't have enough data, they make something up — confidently. There's no signal that the output is unreliable. Executives act on fabricated analysis.</div>
+      </div>
+      <div class="ov-card bad">
+        <div class="ov-card-icon">📊</div>
+        <div class="ov-card-title">Uncritical Retrieval</div>
+        <div class="ov-card-body">When agents pull data from CRM, email, or the web, they pass it through uncritically. A vendor's marketing page gets the same weight as an independent audit.</div>
+      </div>
+      <div class="ov-card bad">
+        <div class="ov-card-icon">☁️</div>
+        <div class="ov-card-title">Cloud Dependency</div>
+        <div class="ov-card-body">Every query goes through a third-party API. Your executives' email, calendar, and business decisions are routed through someone else's infrastructure.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ov-tiers">
+    <div class="ov-section-title">Three Capabilities — One Adapter</div>
+    <div class="tier-row">
+      <div class="tier-card">
+        <div class="tier-tag">Capability 1</div>
+        <div class="tier-name">Structured Reasoning</div>
+        <div class="tier-desc">Every response follows Observation → Mechanism → Projection → Simulation. The agent doesn't just answer — it explains why, what drives it, and what happens next.</div>
+      </div>
+      <div class="tier-card">
+        <div class="tier-tag">Capability 2</div>
+        <div class="tier-name">Calibrated Honesty</div>
+        <div class="tier-desc">When data is missing or thin, the agent says so — instead of fabricating. It requests what it needs. Executives know when to trust the output and when to get more data.</div>
+      </div>
+      <div class="tier-card">
+        <div class="tier-tag">Capability 3</div>
+        <div class="tier-name">Source Evaluation</div>
+        <div class="tier-desc">When the agent retrieves data, it evaluates credibility — methodology, incentive structures, recency. Vendor content is flagged. Independent analysis is weighted higher.</div>
+      </div>
+      <div class="tier-card">
+        <div class="tier-tag">The Result</div>
+        <div class="tier-name">Executive Trust</div>
+        <div class="tier-desc">An agent that reasons, knows its limits, and evaluates its sources is an agent executives actually rely on for decisions — not just task execution.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ov-cta">
+    <button class="ov-cta-btn" onclick="showPage('page2');loadScenario('inbox')">See It In Action →</button>
+    <div class="ov-cta-note">Three scenarios: Inbox Triage · Board Prep · Knowledge Boundaries</div>
+  </div>
+
+</div>
+
+<!-- ═══════ PAGE 2 — DEMO ═══════ -->
+<div id="page2" class="page">
+
+  <div class="demo-nav">
+    <button class="demo-back" onclick="showPage('page1')">← Overview</button>
+    <div class="demo-brand"><span class="demo-badge">TUNED</span> Agent Demo</div>
+    <div class="tab active" id="tab-inbox" onclick="loadScenario('inbox')">📥 Inbox Triage <span class="tab-badge">Reasoning</span></div>
+    <div class="tab" id="tab-board" onclick="loadScenario('board')">📊 Board Prep <span class="tab-badge">Sources</span></div>
+    <div class="tab" id="tab-boundary" onclick="loadScenario('boundary')">🛡 Knowledge Boundary <span class="tab-badge">Calibration</span></div>
+  </div>
+
+  <div class="demo-main">
+    <div class="chat-container">
+      <div class="chat-header">
+        <div>
+          <div class="chat-agent-name" id="agentName">Atlas — Executive Agent</div>
+          <div class="chat-agent-sub" id="agentSub">Inbox management · Priority triage · Calendar integration</div>
+        </div>
+        <div class="chat-status"><div class="chat-status-dot"></div> Reasoning Engine Active</div>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="reset-bar" id="resetBar" style="display:none">
+        <button class="reset-btn" onclick="loadScenario(currentScenario)">↺ Run Again</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">TunedAI Labs — 1580358 B.C. Ltd. &nbsp;·&nbsp; Confidential Demo &nbsp;·&nbsp; April 2026</div>
+
+</div>
+
+<script>
+function showPage(id){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+var currentScenario='inbox', timers=[];
+
+var SCENARIOS = {
+  inbox: {
+    agentName: 'Atlas — Executive Agent',
+    agentSub: 'Inbox management · Priority triage · Calendar integration',
+    tabs: {inbox:true, board:false, boundary:false},
+    messages: [
+      {delay:0, type:'system', text:'Atlas activated. Reasoning engine loaded. Local inference — no data leaves this device.'},
+      {delay:800, type:'user', text:'I have 47 unread emails and 14 meetings next week. 6 meetings have no agendas. I\'m drowning. Help me fix this.'},
+      {delay:2000, type:'typing'},
+      {delay:3500, type:'agent', html:
+        '<b>I\'ll structure this for you.</b> Not just a list — I\'ll explain why each decision matters and what happens if you ignore it.'+
+        '<div class="tier-block t1"><div class="tier-label">Tier 1 — Observation</div><div class="tier-body">'+
+        '47 unread emails scanned. <b>8 are time-sensitive</b> (deadlines within 48 hours). 12 are FYI/CC chains with no action required. 6 meetings have no agendas — these are the ones consuming your time without producing decisions. <b>Your calendar has 3 double-bookings next Tuesday.</b></div></div>'+
+
+        '<div class="tier-block t2"><div class="tier-label">Tier 2 — Mechanism</div><div class="tier-body">'+
+        'The 6 agenda-less meetings are the root cause. <b>Meetings without agendas generate follow-up emails</b> because decisions don\'t get made in the room. 18 of your 47 unread emails are follow-up threads from meetings that should have resolved the topic. The meetings are creating the inbox problem.</div></div>'+
+
+        '<div class="tier-block t3"><div class="tier-label">Tier 3 — Projection</div><div class="tier-body">'+
+        'If you attend all 14 meetings as-is: <b>expect 25+ new follow-up emails by end of next week.</b> Your inbox will be at 60+ by Friday. The double-bookings on Tuesday force reactive rescheduling — which generates 4-6 more emails each. This compounds.</div></div>'+
+
+        '<div class="tier-block t4"><div class="tier-label">Tier 4 — Simulation</div><div class="tier-body">'+
+        'If you cancel the 6 agenda-less meetings and require agendas for reinstatement: <b>your meeting load drops to 8, follow-up email volume drops by ~40%.</b> If you delegate the 12 FYI threads to your EA, your actionable inbox drops from 47 to 27 — today. The 3 Tuesday conflicts resolve by removing the lowest-priority meeting (the vendor check-in has no decision pending).</div></div>'+
+
+        '<div class="compare-banner"><div class="compare-title">What a generic agent would say vs. what you just got</div>'+
+        '<div class="compare-grid">'+
+        '<div class="compare-col before"><div class="compare-col-title">Generic Agent</div><div class="compare-col-body">"Here are your 47 emails sorted by date. You have 14 meetings next week. Would you like me to summarize them?"</div></div>'+
+        '<div class="compare-col after"><div class="compare-col-title">With Reasoning Engine</div><div class="compare-col-body">Identified the root cause (agenda-less meetings), projected what happens if you don\'t act, and gave you a specific counterfactual: cancel 6, delegate 12, resolve Tuesday in one move.</div></div>'+
+        '</div></div>'
+      },
+    ]
+  },
+
+  board: {
+    agentName: 'Atlas — Executive Agent',
+    agentSub: 'Board prep · Data synthesis · Source evaluation',
+    tabs: {inbox:false, board:true, boundary:false},
+    messages: [
+      {delay:0, type:'system', text:'Atlas activated. Retrieval reasoning engine loaded. Source evaluation active.'},
+      {delay:800, type:'user', text:'Prep me for the board meeting Thursday. The topic is whether we should switch our CRM from Salesforce to HubSpot. I\'ve got three reports — pull the key data and give me a recommendation.'},
+      {delay:2000, type:'typing'},
+      {delay:3800, type:'agent', html:
+        '<b>I\'ve reviewed the three reports. Before I give you a recommendation, you need to know which sources are reliable and which aren\'t.</b>'+
+
+        '<div class="source-block untrusted"><div class="source-icon">⚠️</div><div class="source-body"><b>Report 1: HubSpot Migration ROI Guide</b> — Published by HubSpot\'s marketing team.<div class="source-reason">DISCARDED — Vendor-produced content. Claims 340% ROI on migration. No methodology disclosed, no independent verification. This is marketing material positioned as analysis. I am not using this as a basis for any recommendation.</div></div></div>'+
+
+        '<div class="source-block trusted"><div class="source-icon">✓</div><div class="source-body"><b>Report 2: Gartner CRM Magic Quadrant 2026</b> — Independent analyst report.<div class="source-reason">RELIABLE — Independent methodology, peer-reviewed, no vendor funding for this specific evaluation. Salesforce ranked higher on enterprise features; HubSpot ranked higher on ease of use and mid-market fit.</div></div></div>'+
+
+        '<div class="source-block partial"><div class="source-icon">⚡</div><div class="source-body"><b>Report 3: Internal IT Assessment</b> — Your IT team\'s 12-page evaluation.<div class="source-reason">PARTIALLY RELIABLE — Thorough technical analysis, but the team evaluated HubSpot on a 14-day trial. Migration cost estimates are based on vendor-provided timelines, not independent benchmarks. Adjust migration timeline by 1.5-2x.</div></div></div>'+
+
+        '<div class="tier-block t2"><div class="tier-label">Tier 2 — Mechanism</div><div class="tier-body">'+
+        'After discarding the vendor content and adjusting the IT assessment: <b>HubSpot wins on cost and usability for your current team size (45 seats). Salesforce wins on enterprise features you don\'t currently use but would need at 200+ seats.</b> The real question isn\'t which CRM is better — it\'s whether you\'re planning to scale past 200 seats in the next 18 months.</div></div>'+
+
+        '<div class="tier-block t4"><div class="tier-label">Tier 4 — Simulation</div><div class="tier-body">'+
+        'If you migrate now: <b>save ~$84K/year in licensing, but spend $40-60K on migration</b> (IT estimate adjusted for real-world timelines). Break-even in 8-10 months. If you stay on Salesforce and hit 200 seats: you avoid the re-migration cost entirely. <b>The board should decide based on headcount projection, not CRM features.</b></div></div>'+
+
+        '<div class="compare-banner"><div class="compare-title">What happened here that doesn\'t happen with a generic agent</div>'+
+        '<div class="compare-grid">'+
+        '<div class="compare-col before"><div class="compare-col-title">Generic Agent</div><div class="compare-col-body">"Based on the three reports, HubSpot offers 340% ROI and is recommended for migration." — Treats vendor marketing as fact. No source evaluation.</div></div>'+
+        '<div class="compare-col after"><div class="compare-col-title">With Source Evaluation</div><div class="compare-col-body">Discarded vendor content, flagged IT assessment limitations, reframed the decision from "which CRM" to "what\'s your growth plan" — the actual question the board needs to answer.</div></div>'+
+        '</div></div>'
+      },
+    ]
+  },
+
+  boundary: {
+    agentName: 'Atlas — Executive Agent',
+    agentSub: 'Knowledge boundaries · Calibrated honesty · Anti-hallucination',
+    tabs: {inbox:false, board:false, boundary:true},
+    messages: [
+      {delay:0, type:'system', text:'Atlas activated. Calibration layer loaded. Anti-hallucination active.'},
+      {delay:800, type:'user', text:'What did the board decide about the acquisition last Thursday?'},
+      {delay:1800, type:'typing'},
+      {delay:3000, type:'agent', html:
+        '<div class="calibration-block"><div class="cal-label">Knowledge Boundary — Cannot Answer</div><div class="cal-body">'+
+        'I don\'t have access to board meeting minutes, internal memos, or any record of last Thursday\'s board session. <b>I will not guess or fabricate an answer to this question.</b>'+
+        '</div></div>'+
+        '<b>What I need to answer this accurately:</b>'+
+        '<ul style="margin:10px 0 10px 20px;color:var(--text-soft);font-size:14px;line-height:1.8">'+
+        '<li>Board meeting minutes or summary from Thursday</li>'+
+        '<li>Any follow-up email thread with decisions documented</li>'+
+        '<li>Access to the board document repository (if one exists)</li>'+
+        '</ul>'+
+        'If you share any of these, I\'ll give you a full structured analysis of the decision and its downstream implications.'
+      },
+      {delay:5500, type:'user', text:'Okay, here\'s the email from the CFO summarizing the meeting. They decided to proceed with acquiring Meridian Labs for $12M, closing expected in Q3. There were concerns about their IP portfolio.'},
+      {delay:7000, type:'typing'},
+      {delay:8500, type:'agent', html:
+        '<b>Now I have enough data to reason about this.</b>'+
+
+        '<div class="tier-block t1"><div class="tier-label">Tier 1 — Observation</div><div class="tier-body">'+
+        'Board approved Meridian Labs acquisition at $12M. Closing target: Q3 2026. <b>Concerns flagged: IP portfolio.</b> The CFO\'s summary indicates approval was not unanimous — IP concerns were raised but not resolved in the meeting.</div></div>'+
+
+        '<div class="tier-block t2"><div class="tier-label">Tier 2 — Mechanism</div><div class="tier-body">'+
+        'IP concerns at the board level typically mean one of three things: (1) pending litigation on Meridian\'s patents, (2) unclear ownership of key IP developed by contractors, or (3) IP that overlaps with existing portfolio creating redundancy. <b>Each has a different impact on valuation and deal structure.</b> You need to know which one before closing.</div></div>'+
+
+        '<div class="tier-block t3"><div class="tier-label">Tier 3 — Projection</div><div class="tier-body">'+
+        'If the IP concern is unresolved at closing: <b>expect a 15-30 day delay minimum</b> as legal diligence extends. If it\'s a litigation issue, the deal may require an escrow holdback ($1-2M typical). If it\'s ownership ambiguity, you\'ll need contractor assignment agreements before transfer — 4-6 weeks of additional legal work.</div></div>'+
+
+        '<div class="calibration-block"><div class="cal-label">What I Still Don\'t Know</div><div class="cal-body">'+
+        'I can\'t determine which specific IP concern was raised from the CFO\'s summary alone. <b>I need the board minutes or the legal team\'s diligence memo to give you a precise projection.</b> I will not guess which type of IP issue this is — that would be fabrication, and you\'d make different decisions depending on the answer.'+
+        '</div></div>'+
+
+        '<div class="compare-banner"><div class="compare-title">The difference calibration makes</div>'+
+        '<div class="compare-grid">'+
+        '<div class="compare-col before"><div class="compare-col-title">Generic Agent</div><div class="compare-col-body">"The board decided to acquire Meridian Labs. Based on typical acquisitions, the IP concerns are likely related to patent ownership and should be resolved during standard due diligence." — Fabricated the specifics. Sounds plausible. Could be completely wrong.</div></div>'+
+        '<div class="compare-col after"><div class="compare-col-title">With Calibration</div><div class="compare-col-body">Refused to answer without data. Then, with data, gave structured analysis but explicitly flagged what it still couldn\'t determine. You know exactly what to trust and what to verify.</div></div>'+
+        '</div></div>'
+      },
+    ]
+  }
+};
+
+function loadScenario(name){
+  currentScenario = name;
+  timers.forEach(clearTimeout); timers=[];
+  var sc = SCENARIOS[name];
+
+  // Update tabs
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('tab-'+name).classList.add('active');
+
+  // Update header
+  document.getElementById('agentName').textContent = sc.agentName;
+  document.getElementById('agentSub').textContent = sc.agentSub;
+
+  // Clear
+  document.getElementById('chatMessages').innerHTML = '';
+  document.getElementById('resetBar').style.display = 'none';
+
+  // Play messages
+  var lastDelay = 0;
+  sc.messages.forEach(function(msg, i){
+    var t = setTimeout(function(){
+      renderMessage(msg);
+      if(i === sc.messages.length - 1){
+        setTimeout(function(){
+          document.getElementById('resetBar').style.display = 'block';
+        }, 500);
+      }
+    }, msg.delay);
+    timers.push(t);
+    lastDelay = msg.delay;
+  });
+}
+
+function renderMessage(msg){
+  var chat = document.getElementById('chatMessages');
+
+  // Remove any typing indicator
+  var existing = chat.querySelector('.typing-msg');
+  if(existing) existing.remove();
+
+  var div = document.createElement('div');
+
+  if(msg.type === 'typing'){
+    div.className = 'msg msg-agent typing-msg';
+    div.innerHTML = '<div class="avatar">A</div><div class="bubble"><div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>';
+  } else if(msg.type === 'system'){
+    div.className = 'msg msg-system';
+    div.innerHTML = '<div class="avatar">⚡</div><div class="bubble">'+msg.text+'</div>';
+  } else if(msg.type === 'user'){
+    div.className = 'msg msg-user';
+    div.innerHTML = '<div class="avatar">MH</div><div class="bubble">'+msg.text+'</div>';
+  } else if(msg.type === 'agent'){
+    div.className = 'msg msg-agent';
+    div.innerHTML = '<div class="avatar">A</div><div class="bubble">'+msg.html+'</div>';
+  }
+
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+</script>
+
+</body>
+</html>
