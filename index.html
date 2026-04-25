@@ -182,6 +182,7 @@ footer{padding:40px 48px;border-top:1px solid var(--border);display:flex;justify
     <li><a href="#how-it-works">How It Works</a></li>
     <li><a href="#benchmark">Benchmark</a></li>
     <li><a href="#services">Services</a></li>
+    <li><a href="#pricing">Pricing</a></li>
     <li><a href="https://colab.research.google.com/github/tunedailabs/tunedailabs/blob/main/causal_reasoning_demo.ipynb" target="_blank">Live Demo</a></li>
     <li><a href="#faq">FAQ</a></li>
     <li><a href="#contact" class="nav-cta">Get Started</a></li>
@@ -478,6 +479,59 @@ footer{padding:40px 48px;border-top:1px solid var(--border);display:flex;justify
 </div>
 </div>
 
+<!-- PRICING -->
+<div class="section" id="pricing" style="max-width:900px">
+  <div class="sec-tag">Pricing</div>
+  <h2>Straightforward engagements.</h2>
+  <p class="sec-sub">Fixed-scope projects. You know what you're getting and what it costs before we start.</p>
+
+  <div class="services" style="grid-template-columns:repeat(3,1fr);margin-top:32px">
+    <div class="svc" style="border:1px solid var(--border);border-radius:12px;padding:28px">
+      <h3 style="font-size:16px;margin-bottom:8px">Starter</h3>
+      <div style="font-size:36px;font-weight:900;color:var(--orange);margin-bottom:4px">$3,000</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:20px">one-time</div>
+      <ul style="list-style:none;padding:0;font-size:14px;color:var(--soft);line-height:2">
+        <li>✓ 100–200 training examples</li>
+        <li>✓ 7B model fine-tuned on your domain</li>
+        <li>✓ Before/after benchmark</li>
+        <li>✓ Adapter delivered to HuggingFace</li>
+        <li style="color:var(--muted)">— Deployment support</li>
+      </ul>
+      <a href="mailto:mark@tunedailabs.com?subject=Starter Engagement" style="display:block;margin-top:24px;background:var(--orange-dim);border:1px solid var(--orange-border);color:var(--orange);text-align:center;padding:10px;border-radius:8px;font-weight:700;font-size:13px">Get Started</a>
+    </div>
+
+    <div class="svc" style="border:2px solid var(--orange);border-radius:12px;padding:28px;position:relative">
+      <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--orange);color:#fff;font-size:10px;font-weight:800;letter-spacing:1px;padding:3px 14px;border-radius:20px;text-transform:uppercase">Most Popular</div>
+      <h3 style="font-size:16px;margin-bottom:8px">Standard</h3>
+      <div style="font-size:36px;font-weight:900;color:var(--orange);margin-bottom:4px">$6,000</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:20px">one-time</div>
+      <ul style="list-style:none;padding:0;font-size:14px;color:var(--soft);line-height:2">
+        <li>✓ 500+ training examples</li>
+        <li>✓ 7B–14B model fine-tuned</li>
+        <li>✓ Full benchmark + eval card</li>
+        <li>✓ Tool call adherence testing</li>
+        <li>✓ Deployment guide + inference API</li>
+      </ul>
+      <a href="mailto:mark@tunedailabs.com?subject=Standard Engagement" style="display:block;margin-top:24px;background:var(--orange);color:#fff;text-align:center;padding:10px;border-radius:8px;font-weight:700;font-size:13px">Get Started</a>
+    </div>
+
+    <div class="svc" style="border:1px solid var(--border);border-radius:12px;padding:28px">
+      <h3 style="font-size:16px;margin-bottom:8px">Retainer</h3>
+      <div style="font-size:36px;font-weight:900;color:var(--orange);margin-bottom:4px">$3,500</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:20px">per month</div>
+      <ul style="list-style:none;padding:0;font-size:14px;color:var(--soft);line-height:2">
+        <li>✓ Monthly retraining as data grows</li>
+        <li>✓ Ongoing eval + drift monitoring</li>
+        <li>✓ New domain expansions included</li>
+        <li>✓ Priority turnaround</li>
+        <li>✓ Direct Slack access</li>
+      </ul>
+      <a href="mailto:mark@tunedailabs.com?subject=Retainer Inquiry" style="display:block;margin-top:24px;background:var(--orange-dim);border:1px solid var(--orange-border);color:var(--orange);text-align:center;padding:10px;border-radius:8px;font-weight:700;font-size:13px">Let's Talk</a>
+    </div>
+  </div>
+  <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:24px">All engagements include a scoping call. No retainer required to start.</p>
+</div>
+
 <!-- FAQ -->
 <div class="section" id="faq" style="max-width:760px">
   <div class="sec-tag">FAQ</div>
@@ -518,6 +572,23 @@ footer{padding:40px 48px;border-top:1px solid var(--border);display:flex;justify
       <div class="faq-a" role="region">
         <div class="faq-a-inner">
           Click <strong>Live Demo</strong> in the footer. The Colab notebook runs both models against fresh questions generated in your session. No setup required — just a free Google account. Each run produces different questions with different fictional variable names. Watch the scores accumulate in real time.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" aria-expanded="false">
+        Has anyone independently verified this?
+        <span class="faq-chevron">&#8964;</span>
+      </button>
+      <div class="faq-a" role="region">
+        <div class="faq-a-inner">
+          Yes. Matt Wong reviewed the model independently after a call where the 96.96% claim was made. He ran the tests himself and reported back in two messages:<br><br>
+          <em style="color:var(--text);display:block;border-left:3px solid var(--orange);padding-left:16px;margin:8px 0">"During the call Mark Gentry claimed to have fine tuned Qwen2.5-7B to achieve much higher scores (96.96%) than frontier models on the CLadder benchmark. There was a moment when we discussed the terms 'overfitting' and 'benchmaxxing' and to Mark's credit I ran his tests and confirmed that it is neither overfitting nor benchmaxxed. Kudos for surviving scrutiny!"</em>
+          — Matt Wong, first review<br><br>
+          <em style="color:var(--text);display:block;border-left:3px solid var(--orange);padding-left:16px;margin:8px 0">"I dug into your LoRA Adapter and it's pretty cool: rank 64, attention-only, ~40 million trainable parameters. I verified that you are neither benchmaxxed nor overfitted. Base Qwen 2.5-7B: 63.0% — TunedAI LoRA: 91.5% (+28.5 pp). 91.5% is still a huge improvement over base."</em>
+          — Matt Wong, technical follow-up<br><br>
+          Matt tested the LoRA adapter directly. The full fine-tuned model scores 96.96% on the same benchmark. Both conclusions hold: the methodology is clean, the results are real.
         </div>
       </div>
     </div>
